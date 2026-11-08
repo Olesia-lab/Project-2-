@@ -1,0 +1,972 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Projekt Connect Four w C++17, sześć zadań, pełny kod i objaśnienia."><title>Cztery w rzędzie. Plan wykonania projektu</title><style>
+:root{color-scheme:light;--ink:#222b29;--muted:#57625d;--line:#d9dfd8;--accent:#17664b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f5f0;color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1060px;margin:auto;padding:48px 30px 70px}header{max-width:820px}h1{font-size:48px;line-height:1.1;margin:12px 0 24px;font-weight:650;letter-spacing:-1.5px}h2{font-size:27px;line-height:1.3;margin:0 0 20px}h3{font-size:19px;line-height:1.4;margin-top:30px}
+p{margin:12px 0}.lead{font-size:21px;line-height:1.5}.eyebrow{color:var(--muted);font-size:14px}nav{display:flex;flex-wrap:wrap;gap:10px 20px;padding:22px 0;margin:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}a{color:var(--accent);text-underline-offset:3px}
+section{background:#fff;padding:30px 34px;margin:24px 0;border:1px solid var(--line);border-radius:10px;scroll-margin-top:20px}ol,ul{padding-left:24px}li{padding-left:3px;margin:8px 0}code{font:0.9em/1.6 Consolas,"Cascadia Mono",monospace;overflow-wrap:anywhere}p code,li code,td code{background:#edf2ed;padding:1px 4px;border-radius:3px}
+pre{overflow-x:auto;padding:18px 20px;background:#f1f4f0;border:1px solid var(--line);border-radius:5px;font:14px/1.65 Consolas,monospace;tab-size:4;white-space:pre}pre code{font:inherit;overflow-wrap:normal}.command{background:#eaf2ed}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:15px}th,td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}thead th{background:#edf2ed;font-weight:600}th:first-child{white-space:nowrap}
+details{border-top:1px solid var(--line);padding:14px 0;margin-top:16px}summary{cursor:pointer;font-weight:600}summary:hover{color:var(--accent)}summary:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #85bd9d;outline-offset:4px}.source-file{border:1px solid var(--line);border-radius:5px;padding:0;overflow:hidden}.source-file>summary{padding:14px 18px;background:#f4f7f2;font-family:Consolas,monospace}.meta{font:13px system-ui,sans-serif;color:var(--muted);margin-left:10px}.file-content{padding:6px 18px 18px}.source{padding:14px 0;background:#172520;color:#f0f4ef;border:none}.code-line{display:block;min-height:1.65em}.code-line:before{content:attr(data-line);display:inline-block;width:4.2em;margin-right:1.2em;padding-right:0.8em;color:#a2b4aa;text-align:right;border-right:1px solid #405148;user-select:none}.source code{display:block}.source .code-line{display:inline-block;min-width:100%}
+button{border:1px solid #14513c;background:var(--accent);color:white;border-radius:5px;padding:9px 15px;font:600 14px system-ui,sans-serif;cursor:pointer}.copy-status{margin-left:12px;font-size:14px;color:var(--muted)}.checkpoint{border-left:3px solid #348368;padding:8px 14px;background:#f1f6f0}.explanations table th{width:65px;font-family:Consolas,monospace;font-weight:400}.tree{line-height:1.8}footer{font-size:14px;color:var(--muted);max-width:880px}
+@media(max-width:650px){main{padding:26px 14px}h1{font-size:37px}section{padding:22px 18px}h2{font-size:23px}table{font-size:13px}th,td{padding:8px 6px}.file-content{padding:4px 9px 14px}.code-line:before{width:3em;margin-right:0.7em}nav{gap:10px 14px}}
+@media print{body{background:white;font-size:11pt}main{padding:0;max-width:none}section{break-inside:auto;border:0;padding:0;margin:28px 0}button,.copy-status{display:none}pre{white-space:pre-wrap;overflow-wrap:anywhere}.source{background:#f2f2f2;color:#111}a{color:inherit}nav{display:none}.source-file{break-inside:auto}.code-line:before{color:#555}}
+</style></head><body><main><header>
+<p class="eyebrow">Projekt w parze · C++17 · instrukcja wykonania</p>
+<h1>Cztery w rzędzie</h1>
+<p class="lead">Zbudujcie grę w konsoli z trzema metodami AI. Następnie zmierzcie, jak rozmiar planszy i głębokość planowania wpływają na koszt wyboru ruchu.</p>
+<p>Idźcie od zadania 1 do 6. Rozwińcie plik, skopiujcie jego całą zawartość i zapiszcie pod podaną nazwą. Objaśnienia numerów linii są pod kodem. Wszystkie pliki tworzymy w jednym katalogu <code>src</code>. W kodzie nie ma komentarzy. Komunikaty konsoli celowo nie mają polskich znaków, żeby uniknąć problemów z ich wyświetlaniem.</p>
+<p>Główny opis jest skrócony. Pełny kod i objaśnienia każdej niepustej linii są rozwijane. Dodatkowy katalog <code>src</code> zawiera gotowy kod referencyjny, zgodny z tym przewodnikiem.</p>
+</header>
+<nav aria-label="Spis treści"><a href="#zasady">Zasady</a><a href="#zadanie-1">1. Model</a><a href="#zadanie-2">2. Plansza</a><a href="#zadanie-3">3. AI</a><a href="#zadanie-4">4. Złożoność</a><a href="#zadanie-5">5. Badania</a><a href="#zadanie-6">6. Obrona</a><a href="#architektura">Architektura</a></nav>
+
+<section id="zasady">
+<h2>Co dokładnie budujemy</h2>
+<p>Dwaj gracze mają pionki X i O. X zaczyna pustą planszę. Wybór kolumny opuszcza pionek na najniższe wolne pole. Cztery własne pionki w poziomie, pionie albo po dowolnej przekątnej kończą partię zwycięstwem. Pełna plansza bez zwycięzcy daje remis. Pełna kolumna jest niedozwolonym ruchem. Po zakończeniu partii nie można wykonać kolejnego ruchu.</p>
+<p>Wariant klasyczny ma 6 wierszy i 7 kolumn. Nasza modyfikacja dodaje planszę 8 × 9 przy tych samych zasadach wygranej. Pozwala to porównać maksymalnie 7 oraz 9 wyborów w jednej turze. Sprawdzamy wpływ tej zmiany na obliczenia. Nie zakładamy z góry konkretnego wzrostu czasu.</p>
+<p>Każdy gracz może być człowiekiem albo jedną z trzech strategii. W ten sposób otrzymujemy grę człowiek kontra człowiek przy jednym komputerze, człowiek kontra AI oraz AI kontra AI. Człowiek wpisuje numer kolumny. Pionki i plansza są tekstowe.</p>
+<p>Wybór <code>alphabeta</code> oznacza tę samą strategię Minimax z optymalizacją. Trzecią odrębną strategią jest Monte Carlo. Dodatki C++ odpowiadają ustnym przykładom wykładowcy. Bez dokładnej punktacji nie da się zagwarantować określonej oceny.</p>
+</section>
+
+<section id="zadanie-1">
+<h2>Zadanie 1. Ustalcie model i podział pracy</h2>
+<ol>
+<li>Zapiszcie powyższe zasady w swoich notatkach. W programie wiersz 0 znajduje się na górze, a kolumna 0 po lewej. Użytkownik widzi kolumny od 1, więc wejście i wyjście przeliczają numer o jeden.</li>
+<li>Stan gry obejmuje wszystkie pola, gracza na ruchu i wynik. Pole ma wartość 0, 1 albo 2, czyli odpowiednio puste, X lub O. Klasa <code>Board</code> przechowuje cały stan.</li>
+<li>Stan następny powstaje przez skopiowanie <code>Board</code> i wywołanie <code>play(column)</code>. Jeden poziom drzewa oznacza ruch jednego gracza. Nie zapisujemy całego drzewa w pamięci.</li>
+<li>Podzielcie pracę według tabeli. Po każdym zadaniu druga osoba przechodzi przez jego kod i tłumaczy jeden przykład działania.</li>
+</ol>
+<table><thead><tr><th>Osoba A</th><th>Osoba B</th><th>Wspólnie</th></tr></thead><tbody>
+<tr><td><code>Board</code>, <code>Game</code>, zachłanna AI</td><td>Minimax, Alpha-Beta, Monte Carlo</td><td>Reguły i połączenie plików</td></tr>
+<tr><td>Testy reguł, opis struktur, pokaz programu</td><td>Pomiary, raporty INI, opis algorytmów</td><td>Eksperymenty, wykresy i wnioski</td></tr>
+</tbody></table>
+<p class="checkpoint">Gotowe, gdy oboje potraficie wskazać stan gry i wypisać legalne ruchy z dowolnej pokazanej planszy. Podział pliku <code>Strategy.cpp</code> uzgodnijcie przed edycją, żeby nie nadpisać wzajemnie swoich zmian.</p>
+<details><summary>Składnia potrzebna do czytania kolejnych plików</summary>
+<p><code>#include</code> dołącza deklaracje. Plik <code>.hpp</code> opisuje klasę i dostępne operacje, a <code>.cpp</code> zawiera ich działanie. <code>#pragma once</code> zapobiega wielokrotnemu dołączeniu nagłówka. Klasa łączy dane i funkcje, zwane metodami. <code>public</code> udostępnia metody innym częściom programu. Dane przed <code>public</code> są prywatne.</p>
+<p><code>std::vector</code> jest tablicą o ustalanym podczas działania rozmiarze. Wektor wektorów zapisuje wiersze planszy. <code>std::array</code> ma liczbę elementów znaną podczas kompilacji. <code>int</code> przechowuje liczby całkowite, <code>bool</code> wartości prawda/fałsz, <code>double</code> także części ułamkowe. <code>auto</code> pozwala kompilatorowi ustalić typ na podstawie przypisanej wartości.</p>
+<p><code>const Board&amp;</code> udostępnia istniejącą planszę bez kopiowania i bez prawa zmiany przez tę nazwę. <code>Board child = board</code> tworzy osobną kopię. <code>const</code> po metodzie zabrania zmieniać jej zwykłe pola. <code>::</code> wskazuje klasę lub przestrzeń nazw. Kropka wywołuje metodę obiektu, a <code>-&gt;</code> obiektu wskazywanego przez wskaźnik.</p>
+<p><code>std::optional&lt;int&gt;</code> może przechowywać liczbę albo być pusty. W wyniku partii pusty oznacza grę trwającą, 0 remis, a 1 lub 2 zwycięzcę. <code>if (result)</code> sprawdza obecność wartości, więc również remis 0 spełnia ten warunek. <code>*result</code> odczytuje liczbę dopiero po potwierdzeniu jej obecności. W wyborze ruchu pusty wynik oznacza brak ruchów.</p>
+<p><code>std::unique_ptr</code> zarządza jednym obiektem i automatycznie go usuwa. <code>std::make_unique</code> tworzy taki obiekt. <code>std::move</code> przekazuje jego własność, zamiast kopiować wskaźnik. <code>virtual</code> pozwala wywołać właściwą metodę konkretnej strategii przez wspólny typ <code>Strategy</code>. Wirtualny destruktor umożliwia jej poprawne usunięcie. <code>override</code> sprawdza, czy rzeczywiście zastępujemy metodę rodzica.</p>
+<p><code>++</code> zwiększa o jeden, <code>--</code> zmniejsza, <code>==</code> porównuje, a <code>=</code> przypisuje. <code>!</code> odwraca warunek, <code>&amp;&amp;</code> wymaga obu warunków, a <code>||</code> przynajmniej jednego. <code>warunek ? a : b</code> wybiera wartość a lub b. <code>return</code> kończy funkcję i może oddać wynik. Nawiasy klamrowe wyznaczają bloki, a średnik kończy instrukcję lub definicję klasy.</p>
+<p>Funkcja lambda jest małą funkcją zapisaną w miejscu użycia. W sortowaniu <code>[this]</code> pozwala jej odczytać szerokość bieżącej planszy. <code>throw</code> zgłasza błąd, a <code>try</code> i <code>catch</code> przechwytują go, aby wypisać opis. <code>steady_clock</code> mierzy upływ czasu bez przestawiania przez zmianę daty systemowej.</p>
+</details>
+</section>
+
+<section id="zadanie-2">
+<h2>Zadanie 2. Zapiszcie planszę i reguły</h2>
+<ol>
+<li>Utwórzcie katalog <code>src</code>. Zapiszcie poniższe pliki pod dokładnie wskazanymi nazwami. Każdy blok jest całą zawartością pliku.</li>
+<li>Prześledźcie <code>play</code>. Funkcja odrzuca błędny ruch, znajduje wolny wiersz, zapisuje pionek i bada cztery kierunki. Sprawdza wygraną przed remisem. Gracza zmienia tylko wtedy, gdy partia nadal trwa.</li>
+<li>Otwórzcie terminal w <code>src</code> i wykonajcie polecenie poniżej. Na tym etapie kompilujemy sam moduł, bez uruchamiania gry.</li>
+</ol>
+<pre class="command">g++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -c Board.cpp</pre>
+<p>Kompilator tłumaczy kod C++ na pliki programu. Potrzebujecie kompilatora obsługującego C++17. Lokalnie sprawdzono GCC 15.2.0 z MSYS2 MinGW64 na Windows. Jeżeli terminal nie rozpoznaje <code>g++</code>, trzeba wskazać ścieżkę do posiadanego kompilatora albo skonfigurować go w swoim środowisku. Sam edytor kodu nie zastępuje kompilatora.</p>
+<details class="source-file" id="file-Board-hpp">
+<summary>Board.hpp <span class="meta">20 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Board.hpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Board-hpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Board-hpp" data-source-file="Board.hpp"><span class="code-line" data-line="1">#pragma once</span>
+<span class="code-line" data-line="2">#include &lt;optional&gt;</span>
+<span class="code-line" data-line="3">#include &lt;vector&gt;</span>
+<span class="code-line" data-line="4"></span>
+<span class="code-line" data-line="5">class Board {</span>
+<span class="code-line" data-line="6">    std::vector&lt;std::vector&lt;int&gt;&gt; cells_;</span>
+<span class="code-line" data-line="7">    int player_ = 1;</span>
+<span class="code-line" data-line="8">    int moves_ = 0;</span>
+<span class="code-line" data-line="9">    std::optional&lt;int&gt; result_;</span>
+<span class="code-line" data-line="10"></span>
+<span class="code-line" data-line="11">public:</span>
+<span class="code-line" data-line="12">    Board(int rows = 6, int columns = 7);</span>
+<span class="code-line" data-line="13">    int rows() const { return static_cast&lt;int&gt;(cells_.size()); }</span>
+<span class="code-line" data-line="14">    int columns() const { return static_cast&lt;int&gt;(cells_[0].size()); }</span>
+<span class="code-line" data-line="15">    int at(int row, int column) const { return cells_.at(row).at(column); }</span>
+<span class="code-line" data-line="16">    int currentPlayer() const { return player_; }</span>
+<span class="code-line" data-line="17">    std::optional&lt;int&gt; result() const { return result_; }</span>
+<span class="code-line" data-line="18">    std::vector&lt;int&gt; legalMoves() const;</span>
+<span class="code-line" data-line="19">    bool play(int column);</span>
+<span class="code-line" data-line="20">};</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Zapobiega wielokrotnemu dołączeniu tego nagłówka podczas kompilowania jednego pliku.</td></tr><tr><th scope="row">2</th><td>Udostępnia std::optional, czyli wartość, która może być nieobecna.</td></tr><tr><th scope="row">3</th><td>Udostępnia std::vector, czyli tablicę o rozmiarze ustalanym podczas działania.</td></tr><tr><th scope="row">5</th><td>Rozpoczyna definicję klasy Board, reprezentującej pełny stan gry.</td></tr><tr><th scope="row">6</th><td>Przechowuje wiersze planszy jako wektory pól: 0 puste, 1 lub 2 zajęte.</td></tr><tr><th scope="row">7</th><td>Zapamiętuje gracza na ruchu; nową partię rozpoczyna gracz 1.</td></tr><tr><th scope="row">8</th><td>Zlicza poprawnie wykonane ruchy, aby rozpoznać pełną planszę.</td></tr><tr><th scope="row">9</th><td>Przechowuje brak wyniku albo wynik: 0 remis, 1 lub 2 zwycięzca.</td></tr><tr><th scope="row">11</th><td>Udostępnia dalsze funkcje innym częściom programu; wcześniejsze pola pozostają prywatne.</td></tr><tr><th scope="row">12</th><td>Deklaruje konstruktor planszy; pominięte argumenty oznaczają sześć wierszy i siedem kolumn.</td></tr><tr><th scope="row">13</th><td>Zwraca liczbę wierszy jako int, bez zmieniania planszy.</td></tr><tr><th scope="row">14</th><td>Zwraca liczbę kolumn pierwszego wiersza jako int, bez zmieniania planszy.</td></tr><tr><th scope="row">15</th><td>Odczytuje pole; at dodatkowo sprawdza, czy podane indeksy istnieją.</td></tr><tr><th scope="row">16</th><td>Zwraca numer gracza na ruchu, bez zmieniania planszy.</td></tr><tr><th scope="row">17</th><td>Zwraca wynik opcjonalny; pusty oznacza, że partia jeszcze trwa.</td></tr><tr><th scope="row">18</th><td>Deklaruje funkcję zwracającą numery wszystkich dozwolonych kolumn.</td></tr><tr><th scope="row">19</th><td>Deklaruje wykonanie ruchu; bool informuje, czy udało się go wykonać.</td></tr><tr><th scope="row">20</th><td>Kończy definicję klasy; średnik jest wymagany po definicji klasy.</td></tr></tbody></table></details>
+</div></details>
+<details class="source-file" id="file-Board-cpp">
+<summary>Board.cpp <span class="meta">48 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Board.cpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Board-cpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Board-cpp" data-source-file="Board.cpp"><span class="code-line" data-line="1">#include &quot;Board.hpp&quot;</span>
+<span class="code-line" data-line="2">#include &lt;algorithm&gt;</span>
+<span class="code-line" data-line="3">#include &lt;array&gt;</span>
+<span class="code-line" data-line="4">#include &lt;cstdlib&gt;</span>
+<span class="code-line" data-line="5">#include &lt;stdexcept&gt;</span>
+<span class="code-line" data-line="6"></span>
+<span class="code-line" data-line="7">Board::Board(int rows, int columns) {</span>
+<span class="code-line" data-line="8">    if (rows &lt; 4 || columns &lt; 4 || rows &gt; 8 || columns &gt; 9)</span>
+<span class="code-line" data-line="9">        throw std::invalid_argument(&quot;Wymiary musza miescic sie w zakresie 4..8 na 4..9.&quot;);</span>
+<span class="code-line" data-line="10">    cells_.assign(rows, std::vector&lt;int&gt;(columns, 0));</span>
+<span class="code-line" data-line="11">}</span>
+<span class="code-line" data-line="12"></span>
+<span class="code-line" data-line="13">std::vector&lt;int&gt; Board::legalMoves() const {</span>
+<span class="code-line" data-line="14">    std::vector&lt;int&gt; moves;</span>
+<span class="code-line" data-line="15">    if (result_) return moves;</span>
+<span class="code-line" data-line="16">    for (int column = 0; column &lt; columns(); ++column)</span>
+<span class="code-line" data-line="17">        if (cells_[0][column] == 0) moves.push_back(column);</span>
+<span class="code-line" data-line="18">    std::stable_sort(moves.begin(), moves.end(), [this](int a, int b) {</span>
+<span class="code-line" data-line="19">        return std::abs(2 * a - columns() + 1) &lt; std::abs(2 * b - columns() + 1);</span>
+<span class="code-line" data-line="20">    });</span>
+<span class="code-line" data-line="21">    return moves;</span>
+<span class="code-line" data-line="22">}</span>
+<span class="code-line" data-line="23"></span>
+<span class="code-line" data-line="24">bool Board::play(int column) {</span>
+<span class="code-line" data-line="25">    if (result_ || column &lt; 0 || column &gt;= columns() || cells_[0][column] != 0)</span>
+<span class="code-line" data-line="26">        return false;</span>
+<span class="code-line" data-line="27">    int row = rows() - 1;</span>
+<span class="code-line" data-line="28">    while (cells_[row][column] != 0) --row;</span>
+<span class="code-line" data-line="29">    cells_[row][column] = player_;</span>
+<span class="code-line" data-line="30">    ++moves_;</span>
+<span class="code-line" data-line="31">    const std::array&lt;std::array&lt;int, 2&gt;, 4&gt; directions{{{0, 1}, {1, 0}, {1, 1}, {1, -1}}};</span>
+<span class="code-line" data-line="32">    for (const auto&amp; direction : directions) {</span>
+<span class="code-line" data-line="33">        int count = 1;</span>
+<span class="code-line" data-line="34">        for (int sign : {-1, 1}) {</span>
+<span class="code-line" data-line="35">            int r = row + sign * direction[0];</span>
+<span class="code-line" data-line="36">            int c = column + sign * direction[1];</span>
+<span class="code-line" data-line="37">            while (r &gt;= 0 &amp;&amp; r &lt; rows() &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; columns() &amp;&amp; cells_[r][c] == player_) {</span>
+<span class="code-line" data-line="38">                ++count;</span>
+<span class="code-line" data-line="39">                r += sign * direction[0];</span>
+<span class="code-line" data-line="40">                c += sign * direction[1];</span>
+<span class="code-line" data-line="41">            }</span>
+<span class="code-line" data-line="42">        }</span>
+<span class="code-line" data-line="43">        if (count &gt;= 4) result_ = player_;</span>
+<span class="code-line" data-line="44">    }</span>
+<span class="code-line" data-line="45">    if (!result_ &amp;&amp; moves_ == rows() * columns()) result_ = 0;</span>
+<span class="code-line" data-line="46">    if (!result_) player_ = 3 - player_;</span>
+<span class="code-line" data-line="47">    return true;</span>
+<span class="code-line" data-line="48">}</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Dołącza deklarację klasy Board, której funkcje definiujemy w tym pliku.</td></tr><tr><th scope="row">2</th><td>Udostępnia algorytm stable_sort do uporządkowania dostępnych kolumn.</td></tr><tr><th scope="row">3</th><td>Udostępnia std::array, czyli tablicę o stałej liczbie elementów.</td></tr><tr><th scope="row">4</th><td>Udostępnia std::abs do obliczania wartości bezwzględnej liczby.</td></tr><tr><th scope="row">5</th><td>Udostępnia wyjątek invalid_argument sygnalizujący niepoprawny argument funkcji.</td></tr><tr><th scope="row">7</th><td>Definiuje konstruktor Board, przyjmujący liczbę wierszy i kolumn.</td></tr><tr><th scope="row">8</th><td>Sprawdza, czy rozmiar mieści się w obsługiwanym zakresie wierszy i kolumn.</td></tr><tr><th scope="row">9</th><td>Przerywa tworzenie planszy z opisem błędu, jeśli wymiary są niepoprawne.</td></tr><tr><th scope="row">10</th><td>Tworzy wskazaną liczbę wierszy i wypełnia wszystkie pola zerami.</td></tr><tr><th scope="row">11</th><td>Kończy konstruktor; pola z wartościami domyślnymi pozostają ustawione zgodnie z nagłówkiem.</td></tr><tr><th scope="row">13</th><td>Definiuje funkcję zwracającą legalne ruchy; const zabrania zmieniania stanu planszy.</td></tr><tr><th scope="row">14</th><td>Tworzy początkowo pustą listę kolumn, którą zwróci funkcja.</td></tr><tr><th scope="row">15</th><td>Po zakończeniu partii zwraca pustą listę; optional z wartością 0 też jest obecny.</td></tr><tr><th scope="row">16</th><td>Przechodzi przez numery wszystkich kolumn, zaczynając od indeksu 0.</td></tr><tr><th scope="row">17</th><td>Dodaje kolumnę do listy, jeśli jej najwyższe pole jest puste.</td></tr><tr><th scope="row">18</th><td>Rozpoczyna stabilne sortowanie; funkcja porównująca korzysta z bieżącej planszy przez this.</td></tr><tr><th scope="row">19</th><td>Porównuje podwojone odległości kolumn od środka, dzięki czemu nie potrzeba ułamków.</td></tr><tr><th scope="row">20</th><td>Kończy funkcję porównującą oraz wywołanie algorytmu sortowania.</td></tr><tr><th scope="row">21</th><td>Zwraca uporządkowaną listę kolumn; remisy zachowują wcześniejszą kolejność.</td></tr><tr><th scope="row">22</th><td>Kończy funkcję legalMoves, która nie zmieniała planszy.</td></tr><tr><th scope="row">24</th><td>Definiuje wykonanie ruchu w kolumnie numerowanej od zera.</td></tr><tr><th scope="row">25</th><td>Odrzuca zakończoną partię, nieistniejącą kolumnę albo kolumnę już pełną.</td></tr><tr><th scope="row">26</th><td>Zwraca false bez zmieniania planszy i numeru gracza.</td></tr><tr><th scope="row">27</th><td>Zaczyna szukanie miejsca na pionek od najniższego wiersza.</td></tr><tr><th scope="row">28</th><td>Przesuwa się w górę, dopóki sprawdzane pole jest zajęte.</td></tr><tr><th scope="row">29</th><td>Wpisuje numer bieżącego gracza w znalezione wolne pole.</td></tr><tr><th scope="row">30</th><td>Zwiększa liczbę poprawnych ruchów o jeden.</td></tr><tr><th scope="row">31</th><td>Definiuje cztery kierunki sprawdzania: poziom, pion oraz obie przekątne.</td></tr><tr><th scope="row">32</th><td>Sprawdza kolejno każdy kierunek; const auto&amp; odczytuje go bez kopiowania.</td></tr><tr><th scope="row">33</th><td>Zaczyna liczenie od właśnie umieszczonego pionka.</td></tr><tr><th scope="row">34</th><td>Sprawdza obie strony tego samego kierunku dzięki znakom -1 oraz 1.</td></tr><tr><th scope="row">35</th><td>Wyznacza wiersz sąsiedniego pola po wybranej stronie.</td></tr><tr><th scope="row">36</th><td>Wyznacza kolumnę sąsiedniego pola po wybranej stronie.</td></tr><tr><th scope="row">37</th><td>Idzie dalej tylko w granicach planszy i przez pionki tego samego gracza.</td></tr><tr><th scope="row">38</th><td>Dolicza kolejny połączony pionek bieżącego gracza.</td></tr><tr><th scope="row">39</th><td>Przesuwa sprawdzany wiersz o krok w wybranym kierunku.</td></tr><tr><th scope="row">40</th><td>Przesuwa sprawdzaną kolumnę o krok w wybranym kierunku.</td></tr><tr><th scope="row">41</th><td>Kończy przechodzenie przez połączone pionki po jednej stronie.</td></tr><tr><th scope="row">42</th><td>Kończy sprawdzanie obu stron jednego kierunku.</td></tr><tr><th scope="row">43</th><td>Zapisuje zwycięzcę, jeśli w tej linii znaleziono co najmniej cztery pionki.</td></tr><tr><th scope="row">44</th><td>Kończy sprawdzanie wszystkich czterech kierunków zwycięstwa.</td></tr><tr><th scope="row">45</th><td>Zapisuje remis tylko wtedy, gdy nie ma zwycięzcy i wszystkie pola są zajęte.</td></tr><tr><th scope="row">46</th><td>Zmienia gracza z 1 na 2 lub odwrotnie, ale wyłącznie w trwającej partii.</td></tr><tr><th scope="row">47</th><td>Potwierdza poprawne wykonanie ruchu, także ruchu kończącego partię.</td></tr><tr><th scope="row">48</th><td>Kończy funkcję play, która aktualizuje cały stan gry.</td></tr></tbody></table></details>
+</div></details>
+<p class="checkpoint">Gotowe, gdy kompilacja kończy się bez błędu i powstaje <code>Board.o</code>. Konstruktor dopuszcza od 4 do 8 wierszy oraz od 4 do 9 kolumn, co obejmuje małą planszę testową. Menu końcowej gry udostępnia tylko ustalone 6 × 7 i 8 × 9.</p>
+<p>Na obronę prześledźcie jeden pionek w <code>play</code>. Wyjaśnijcie też, dlaczego pełna kolumna nie zmienia gracza i czemu wygraną sprawdzamy przed remisem.</p>
+</section>
+
+<section id="zadanie-3">
+<h2>Zadanie 3. Dodajcie trzy strategie i sprawdźcie decyzje</h2>
+<p>Utwórzcie <code>Strategy.hpp</code> i <code>Strategy.cpp</code>. Wspólna metoda <code>choose</code> otrzymuje stan i oddaje kolumnę albo brak ruchu. Nie zmienia oryginalnej planszy. <code>makeStrategy</code> tworzy wybrany obiekt zarządzany przez <code>unique_ptr</code>. Funkcja <code>measure</code> mierzy cały wybór ruchu, włącznie z przygotowaniem obliczeń.</p>
+<table><thead><tr><th>Metoda</th><th>Co należy zrozumieć</th></tr></thead><tbody>
+<tr><td>Zachłanna</td><td>Sprawdza własne ruchy, premiuje natychmiastową wygraną i karze ruch pozwalający przeciwnikowi wygrać od razu. Pozostałe pozycje ocenia punktacją. To płytka strategia taktyczna, obejmująca również odpowiedź przeciwnika.</td></tr>
+<tr><td>Minimax</td><td>Nasza tura wybiera największą ocenę, a tura przeciwnika najmniejszą. Ocena zawsze dotyczy gracza, który rozpoczął wyszukiwanie. Głębokość 1 sprawdza jeden własny ruch, a głębokość 2 także odpowiedź przeciwnika.</td></tr>
+<tr><td>Alpha-Beta</td><td>Alpha przechowuje dolną granicę korzystnego wyniku, beta górną. Gdy alpha jest co najmniej beta, dalsze ruchy w tej gałęzi nie poprawią wyboru przodka. Używamy tej samej rekurencji i oceny co w zwykłym Minimaxie.</td></tr>
+<tr><td>Monte Carlo</td><td>Dla każdej kolumny wykonuje określoną liczbę losowych partii do końca. Liczy +1 za wygraną badanego gracza, −1 za porażkę i 0 za remis. Wybiera największą sumę. Nie jest to MCTS, czyli metoda budująca i rozwijająca drzewo symulacji.</td></tr>
+</tbody></table>
+<p>Heurystyka, czyli przybliżona ocena niedokończonej partii, sprawdza wszystkie odcinki czterech pól. Jeden, dwa i trzy własne pionki bez pionka przeciwnika dają 1, 10 i 100 punktów. Takie układy przeciwnika odejmują punkty. Mieszany odcinek daje 0. Wygrana ma wartość około miliona. Dodatkowa pozostała głębokość premiuje szybszą wygraną i późniejszą porażkę. Heurystyka może przeceniać zagrożenie na polu, na które pionek nie może jeszcze spaść.</p>
+<p>Legalne ruchy sprawdzamy od środka planszy. Przy równych ocenach zachowujemy pierwszy. Pojedyncze wyszukiwanie Minimax ma limit 2000 ms, sprawdzany przy wejściu do kolejnego węzła. Może nieznacznie go przekroczyć o czas bieżącej operacji. Po przerwaniu zwraca pierwszy legalny ruch, ustawia <code>complete=false</code>, a <code>score=0</code> jest wtedy wartością techniczną, bez znaczenia oceny remisu.</p>
+<details class="source-file" id="file-Strategy-hpp">
+<summary>Strategy.hpp <span class="meta">52 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Strategy.hpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Strategy-hpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Strategy-hpp" data-source-file="Strategy.hpp"><span class="code-line" data-line="1">#pragma once</span>
+<span class="code-line" data-line="2">#include &quot;Board.hpp&quot;</span>
+<span class="code-line" data-line="3">#include &lt;chrono&gt;</span>
+<span class="code-line" data-line="4">#include &lt;cstdint&gt;</span>
+<span class="code-line" data-line="5">#include &lt;memory&gt;</span>
+<span class="code-line" data-line="6">#include &lt;optional&gt;</span>
+<span class="code-line" data-line="7">#include &lt;random&gt;</span>
+<span class="code-line" data-line="8">#include &lt;string&gt;</span>
+<span class="code-line" data-line="9"></span>
+<span class="code-line" data-line="10">struct SearchStats {</span>
+<span class="code-line" data-line="11">    std::uint64_t states = 0;</span>
+<span class="code-line" data-line="12">    std::uint64_t cutoffs = 0;</span>
+<span class="code-line" data-line="13">    double milliseconds = 0;</span>
+<span class="code-line" data-line="14">    bool complete = true;</span>
+<span class="code-line" data-line="15">    int score = 0;</span>
+<span class="code-line" data-line="16">};</span>
+<span class="code-line" data-line="17"></span>
+<span class="code-line" data-line="18">class Strategy {</span>
+<span class="code-line" data-line="19">public:</span>
+<span class="code-line" data-line="20">    virtual ~Strategy() = default;</span>
+<span class="code-line" data-line="21">    virtual std::optional&lt;int&gt; choose(const Board&amp; board, SearchStats&amp; stats) = 0;</span>
+<span class="code-line" data-line="22">};</span>
+<span class="code-line" data-line="23"></span>
+<span class="code-line" data-line="24">class GreedyStrategy : public Strategy {</span>
+<span class="code-line" data-line="25">public:</span>
+<span class="code-line" data-line="26">    std::optional&lt;int&gt; choose(const Board&amp; board, SearchStats&amp; stats) override;</span>
+<span class="code-line" data-line="27">};</span>
+<span class="code-line" data-line="28"></span>
+<span class="code-line" data-line="29">class MinimaxStrategy : public Strategy {</span>
+<span class="code-line" data-line="30">    int depth_;</span>
+<span class="code-line" data-line="31">    bool pruning_;</span>
+<span class="code-line" data-line="32">    int limitMs_;</span>
+<span class="code-line" data-line="33">    int rootPlayer_ = 1;</span>
+<span class="code-line" data-line="34">    std::chrono::steady_clock::time_point deadline_;</span>
+<span class="code-line" data-line="35">    int search(const Board&amp; board, int depth, int alpha, int beta, SearchStats&amp; stats);</span>
+<span class="code-line" data-line="36"></span>
+<span class="code-line" data-line="37">public:</span>
+<span class="code-line" data-line="38">    MinimaxStrategy(int depth, bool pruning, int limitMs = 2000);</span>
+<span class="code-line" data-line="39">    std::optional&lt;int&gt; choose(const Board&amp; board, SearchStats&amp; stats) override;</span>
+<span class="code-line" data-line="40">};</span>
+<span class="code-line" data-line="41"></span>
+<span class="code-line" data-line="42">class MonteCarloStrategy : public Strategy {</span>
+<span class="code-line" data-line="43">    int simulations_;</span>
+<span class="code-line" data-line="44">    std::mt19937 generator_;</span>
+<span class="code-line" data-line="45"></span>
+<span class="code-line" data-line="46">public:</span>
+<span class="code-line" data-line="47">    MonteCarloStrategy(int simulations, unsigned seed);</span>
+<span class="code-line" data-line="48">    std::optional&lt;int&gt; choose(const Board&amp; board, SearchStats&amp; stats) override;</span>
+<span class="code-line" data-line="49">};</span>
+<span class="code-line" data-line="50"></span>
+<span class="code-line" data-line="51">std::unique_ptr&lt;Strategy&gt; makeStrategy(const std::string&amp; name, int depth, int simulations, unsigned seed);</span>
+<span class="code-line" data-line="52">std::optional&lt;int&gt; measure(Strategy&amp; strategy, const Board&amp; board, SearchStats&amp; stats);</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Zapobiega wielokrotnemu dołączeniu tego nagłówka podczas kompilowania jednego pliku.</td></tr><tr><th scope="row">2</th><td>Udostępnia klasę Board, której strategie używają jako stanu gry.</td></tr><tr><th scope="row">3</th><td>Dołącza narzędzia standardowe do odmierzania czasu i wyznaczania terminu zakończenia.</td></tr><tr><th scope="row">4</th><td>Udostępnia całkowite typy liczbowe o określonej liczbie bitów.</td></tr><tr><th scope="row">5</th><td>Udostępnia unique_ptr i make_unique, które zarządzają czasem życia obiektów strategii.</td></tr><tr><th scope="row">6</th><td>Udostępnia optional, którym przedstawiamy numer ruchu albo jego brak.</td></tr><tr><th scope="row">7</th><td>Udostępnia generator liczb pseudolosowych i losowanie z określonego zakresu.</td></tr><tr><th scope="row">8</th><td>Udostępnia string, używany do przechowywania nazwy wybranej strategii.</td></tr><tr><th scope="row">10</th><td>Rozpoczyna strukturę przechowującą statystyki jednego wyboru ruchu.</td></tr><tr><th scope="row">11</th><td>Licznik stanów zaczyna od zera i mieści duże liczby 64-bitowe.</td></tr><tr><th scope="row">12</th><td>Licznik wykonanych odcięć Alpha-Beta zaczyna od zera.</td></tr><tr><th scope="row">13</th><td>Przechowuje zmierzony czas wyboru ruchu w milisekundach, także z częścią ułamkową.</td></tr><tr><th scope="row">14</th><td>Domyślnie zakłada, że obliczenie zakończyło się bez przekroczenia limitu czasu.</td></tr><tr><th scope="row">15</th><td>Przechowuje ocenę wybranego ruchu, interpretowaną zgodnie z używaną strategią.</td></tr><tr><th scope="row">16</th><td>Kończy definicję struktury SearchStats.</td></tr><tr><th scope="row">18</th><td>Rozpoczyna wspólną klasę, przez którą program obsługuje różne strategie.</td></tr><tr><th scope="row">19</th><td>Udostępnia poniższe elementy kodowi spoza klasy.</td></tr><tr><th scope="row">20</th><td>Zapewnia prawidłowe usuwanie konkretnej strategii przez wskaźnik do klasy Strategy.</td></tr><tr><th scope="row">21</th><td>Wymaga własnego wyboru ruchu w klasach pochodnych; planszę tylko odczytuje, a statystyki aktualizuje.</td></tr><tr><th scope="row">22</th><td>Kończy definicję wspólnej klasy Strategy.</td></tr><tr><th scope="row">24</th><td>Rozpoczyna strategię zachłanną, która publicznie dziedziczy wspólne operacje Strategy.</td></tr><tr><th scope="row">25</th><td>Udostępnia operację wyboru ruchu kodowi korzystającemu ze strategii.</td></tr><tr><th scope="row">26</th><td>Deklaruje wybór ruchu, a override sprawdza zgodność z metodą klasy bazowej.</td></tr><tr><th scope="row">27</th><td>Kończy definicję klasy GreedyStrategy.</td></tr><tr><th scope="row">29</th><td>Rozpoczyna strategię Minimax, obsługującą również opcjonalne cięcia Alpha-Beta.</td></tr><tr><th scope="row">30</th><td>Przechowuje żądaną liczbę ruchów w przód, licząc od bieżącej planszy.</td></tr><tr><th scope="row">31</th><td>Przechowuje informację, czy wolno przerywać przeszukiwanie przez cięcia Alpha-Beta.</td></tr><tr><th scope="row">32</th><td>Przechowuje limit czasu jednego wyboru ruchu, wyrażony w milisekundach.</td></tr><tr><th scope="row">33</th><td>Przechowuje gracza, z którego perspektywy liczone są wszystkie oceny danego wyszukiwania.</td></tr><tr><th scope="row">34</th><td>Przechowuje chwilę, po której wyszukiwanie ma zostać oznaczone jako nieukończone.</td></tr><tr><th scope="row">35</th><td>Deklaruje rekurencyjne przeszukiwanie stanu z pozostałą głębokością i granicami Alpha-Beta.</td></tr><tr><th scope="row">37</th><td>Udostępnia konstruktor oraz wybór ruchu kodowi spoza klasy.</td></tr><tr><th scope="row">38</th><td>Deklaruje konfigurację Minimaxu; pominięty limit czasu wynosi 2000 milisekund.</td></tr><tr><th scope="row">39</th><td>Deklaruje wybór ruchu zgodny z interfejsem Strategy.</td></tr><tr><th scope="row">40</th><td>Kończy definicję klasy MinimaxStrategy.</td></tr><tr><th scope="row">42</th><td>Rozpoczyna odrębną strategię porównującą wyniki losowych kontynuacji partii.</td></tr><tr><th scope="row">43</th><td>Przechowuje liczbę losowych partii wykonywanych dla każdego kandydującego ruchu.</td></tr><tr><th scope="row">44</th><td>Przechowuje generator pseudolosowy, którego stan zmienia się przy kolejnych losowaniach.</td></tr><tr><th scope="row">46</th><td>Udostępnia konstruktor i wybór ruchu kodowi spoza klasy.</td></tr><tr><th scope="row">47</th><td>Deklaruje ustawienie liczby symulacji oraz ziarna inicjującego generator.</td></tr><tr><th scope="row">48</th><td>Deklaruje wybór ruchu Monte Carlo zgodny z interfejsem Strategy.</td></tr><tr><th scope="row">49</th><td>Kończy definicję klasy MonteCarloStrategy.</td></tr><tr><th scope="row">51</th><td>Deklaruje tworzenie wskazanej strategii; zwrócony unique_ptr samodzielnie zarządza jej obiektem.</td></tr><tr><th scope="row">52</th><td>Deklaruje pomiar wyboru ruchu, zapis czasu i zwrócenie wybranej kolumny.</td></tr></tbody></table></details>
+</div></details>
+<details class="source-file" id="file-Strategy-cpp">
+<summary>Strategy.cpp <span class="meta">181 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Strategy.cpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Strategy-cpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Strategy-cpp" data-source-file="Strategy.cpp"><span class="code-line" data-line="1">#include &quot;Strategy.hpp&quot;</span>
+<span class="code-line" data-line="2">#include &lt;algorithm&gt;</span>
+<span class="code-line" data-line="3">#include &lt;array&gt;</span>
+<span class="code-line" data-line="4">#include &lt;stdexcept&gt;</span>
+<span class="code-line" data-line="5"></span>
+<span class="code-line" data-line="6">namespace {</span>
+<span class="code-line" data-line="7">constexpr int winScore = 1000000;</span>
+<span class="code-line" data-line="8">constexpr int infinity = 2000000;</span>
+<span class="code-line" data-line="9"></span>
+<span class="code-line" data-line="10">int evaluate(const Board&amp; board, int player) {</span>
+<span class="code-line" data-line="11">    const std::array&lt;int, 5&gt; weights{0, 1, 10, 100, winScore};</span>
+<span class="code-line" data-line="12">    const std::array&lt;std::array&lt;int, 2&gt;, 4&gt; directions{{{0, 1}, {1, 0}, {1, 1}, {1, -1}}};</span>
+<span class="code-line" data-line="13">    int score = 0;</span>
+<span class="code-line" data-line="14">    for (int row = 0; row &lt; board.rows(); ++row) {</span>
+<span class="code-line" data-line="15">        for (int column = 0; column &lt; board.columns(); ++column) {</span>
+<span class="code-line" data-line="16">            for (const auto&amp; direction : directions) {</span>
+<span class="code-line" data-line="17">                int endRow = row + 3 * direction[0];</span>
+<span class="code-line" data-line="18">                int endColumn = column + 3 * direction[1];</span>
+<span class="code-line" data-line="19">                if (endRow &gt;= board.rows() || endColumn &lt; 0 || endColumn &gt;= board.columns()) continue;</span>
+<span class="code-line" data-line="20">                int own = 0;</span>
+<span class="code-line" data-line="21">                int enemy = 0;</span>
+<span class="code-line" data-line="22">                for (int i = 0; i &lt; 4; ++i) {</span>
+<span class="code-line" data-line="23">                    int cell = board.at(row + i * direction[0], column + i * direction[1]);</span>
+<span class="code-line" data-line="24">                    if (cell == player) ++own;</span>
+<span class="code-line" data-line="25">                    else if (cell != 0) ++enemy;</span>
+<span class="code-line" data-line="26">                }</span>
+<span class="code-line" data-line="27">                if (enemy == 0) score += weights[own];</span>
+<span class="code-line" data-line="28">                if (own == 0) score -= weights[enemy];</span>
+<span class="code-line" data-line="29">            }</span>
+<span class="code-line" data-line="30">        }</span>
+<span class="code-line" data-line="31">    }</span>
+<span class="code-line" data-line="32">    return score;</span>
+<span class="code-line" data-line="33">}</span>
+<span class="code-line" data-line="34"></span>
+<span class="code-line" data-line="35">int terminalScore(int result, int player, int depth) {</span>
+<span class="code-line" data-line="36">    if (result == 0) return 0;</span>
+<span class="code-line" data-line="37">    return result == player ? winScore + depth : -winScore - depth;</span>
+<span class="code-line" data-line="38">}</span>
+<span class="code-line" data-line="39">}</span>
+<span class="code-line" data-line="40"></span>
+<span class="code-line" data-line="41">std::optional&lt;int&gt; GreedyStrategy::choose(const Board&amp; board, SearchStats&amp; stats) {</span>
+<span class="code-line" data-line="42">    stats = {};</span>
+<span class="code-line" data-line="43">    stats.states = 1;</span>
+<span class="code-line" data-line="44">    std::optional&lt;int&gt; best;</span>
+<span class="code-line" data-line="45">    int bestScore = -infinity;</span>
+<span class="code-line" data-line="46">    int player = board.currentPlayer();</span>
+<span class="code-line" data-line="47">    for (int column : board.legalMoves()) {</span>
+<span class="code-line" data-line="48">        Board child = board;</span>
+<span class="code-line" data-line="49">        child.play(column);</span>
+<span class="code-line" data-line="50">        ++stats.states;</span>
+<span class="code-line" data-line="51">        int score = child.result() ? terminalScore(*child.result(), player, 0) : evaluate(child, player);</span>
+<span class="code-line" data-line="52">        if (!child.result()) {</span>
+<span class="code-line" data-line="53">            for (int reply : child.legalMoves()) {</span>
+<span class="code-line" data-line="54">                Board response = child;</span>
+<span class="code-line" data-line="55">                response.play(reply);</span>
+<span class="code-line" data-line="56">                ++stats.states;</span>
+<span class="code-line" data-line="57">                if (response.result() &amp;&amp; *response.result() == 3 - player) score = -winScore;</span>
+<span class="code-line" data-line="58">            }</span>
+<span class="code-line" data-line="59">        }</span>
+<span class="code-line" data-line="60">        if (score &gt; bestScore) {</span>
+<span class="code-line" data-line="61">            bestScore = score;</span>
+<span class="code-line" data-line="62">            best = column;</span>
+<span class="code-line" data-line="63">        }</span>
+<span class="code-line" data-line="64">    }</span>
+<span class="code-line" data-line="65">    stats.score = best ? bestScore : 0;</span>
+<span class="code-line" data-line="66">    return best;</span>
+<span class="code-line" data-line="67">}</span>
+<span class="code-line" data-line="68"></span>
+<span class="code-line" data-line="69">MinimaxStrategy::MinimaxStrategy(int depth, bool pruning, int limitMs)</span>
+<span class="code-line" data-line="70">    : depth_(depth), pruning_(pruning), limitMs_(limitMs) {</span>
+<span class="code-line" data-line="71">    if (depth &lt; 1 || depth &gt; 12 || limitMs &lt; 1)</span>
+<span class="code-line" data-line="72">        throw std::invalid_argument(&quot;Glebokosc 1..12, limit czasu co najmniej 1 ms.&quot;);</span>
+<span class="code-line" data-line="73">}</span>
+<span class="code-line" data-line="74"></span>
+<span class="code-line" data-line="75">int MinimaxStrategy::search(const Board&amp; board, int depth, int alpha, int beta, SearchStats&amp; stats) {</span>
+<span class="code-line" data-line="76">    ++stats.states;</span>
+<span class="code-line" data-line="77">    if (std::chrono::steady_clock::now() &gt;= deadline_) {</span>
+<span class="code-line" data-line="78">        stats.complete = false;</span>
+<span class="code-line" data-line="79">        return 0;</span>
+<span class="code-line" data-line="80">    }</span>
+<span class="code-line" data-line="81">    if (board.result()) return terminalScore(*board.result(), rootPlayer_, depth);</span>
+<span class="code-line" data-line="82">    if (depth == 0) return evaluate(board, rootPlayer_);</span>
+<span class="code-line" data-line="83">    bool maximizing = board.currentPlayer() == rootPlayer_;</span>
+<span class="code-line" data-line="84">    int value = maximizing ? -infinity : infinity;</span>
+<span class="code-line" data-line="85">    for (int column : board.legalMoves()) {</span>
+<span class="code-line" data-line="86">        Board child = board;</span>
+<span class="code-line" data-line="87">        child.play(column);</span>
+<span class="code-line" data-line="88">        int score = search(child, depth - 1, alpha, beta, stats);</span>
+<span class="code-line" data-line="89">        if (!stats.complete) return 0;</span>
+<span class="code-line" data-line="90">        if (maximizing) {</span>
+<span class="code-line" data-line="91">            value = std::max(value, score);</span>
+<span class="code-line" data-line="92">            alpha = std::max(alpha, value);</span>
+<span class="code-line" data-line="93">        } else {</span>
+<span class="code-line" data-line="94">            value = std::min(value, score);</span>
+<span class="code-line" data-line="95">            beta = std::min(beta, value);</span>
+<span class="code-line" data-line="96">        }</span>
+<span class="code-line" data-line="97">        if (pruning_ &amp;&amp; alpha &gt;= beta) {</span>
+<span class="code-line" data-line="98">            ++stats.cutoffs;</span>
+<span class="code-line" data-line="99">            break;</span>
+<span class="code-line" data-line="100">        }</span>
+<span class="code-line" data-line="101">    }</span>
+<span class="code-line" data-line="102">    return value;</span>
+<span class="code-line" data-line="103">}</span>
+<span class="code-line" data-line="104"></span>
+<span class="code-line" data-line="105">std::optional&lt;int&gt; MinimaxStrategy::choose(const Board&amp; board, SearchStats&amp; stats) {</span>
+<span class="code-line" data-line="106">    stats = {};</span>
+<span class="code-line" data-line="107">    stats.states = 1;</span>
+<span class="code-line" data-line="108">    auto moves = board.legalMoves();</span>
+<span class="code-line" data-line="109">    if (moves.empty()) return std::nullopt;</span>
+<span class="code-line" data-line="110">    deadline_ = std::chrono::steady_clock::now() + std::chrono::milliseconds(limitMs_);</span>
+<span class="code-line" data-line="111">    rootPlayer_ = board.currentPlayer();</span>
+<span class="code-line" data-line="112">    int bestScore = -infinity;</span>
+<span class="code-line" data-line="113">    int alpha = -infinity;</span>
+<span class="code-line" data-line="114">    int best = moves.front();</span>
+<span class="code-line" data-line="115">    for (int column : moves) {</span>
+<span class="code-line" data-line="116">        Board child = board;</span>
+<span class="code-line" data-line="117">        child.play(column);</span>
+<span class="code-line" data-line="118">        int score = search(child, depth_ - 1, alpha, infinity, stats);</span>
+<span class="code-line" data-line="119">        if (!stats.complete) {</span>
+<span class="code-line" data-line="120">            stats.score = 0;</span>
+<span class="code-line" data-line="121">            return moves.front();</span>
+<span class="code-line" data-line="122">        }</span>
+<span class="code-line" data-line="123">        if (score &gt; bestScore) {</span>
+<span class="code-line" data-line="124">            bestScore = score;</span>
+<span class="code-line" data-line="125">            best = column;</span>
+<span class="code-line" data-line="126">        }</span>
+<span class="code-line" data-line="127">        if (pruning_) alpha = std::max(alpha, bestScore);</span>
+<span class="code-line" data-line="128">    }</span>
+<span class="code-line" data-line="129">    stats.score = bestScore;</span>
+<span class="code-line" data-line="130">    return best;</span>
+<span class="code-line" data-line="131">}</span>
+<span class="code-line" data-line="132"></span>
+<span class="code-line" data-line="133">MonteCarloStrategy::MonteCarloStrategy(int simulations, unsigned seed)</span>
+<span class="code-line" data-line="134">    : simulations_(simulations), generator_(seed) {</span>
+<span class="code-line" data-line="135">    if (simulations &lt; 1) throw std::invalid_argument(&quot;Liczba symulacji musi byc dodatnia.&quot;);</span>
+<span class="code-line" data-line="136">}</span>
+<span class="code-line" data-line="137"></span>
+<span class="code-line" data-line="138">std::optional&lt;int&gt; MonteCarloStrategy::choose(const Board&amp; board, SearchStats&amp; stats) {</span>
+<span class="code-line" data-line="139">    stats = {};</span>
+<span class="code-line" data-line="140">    stats.states = 1;</span>
+<span class="code-line" data-line="141">    std::optional&lt;int&gt; best;</span>
+<span class="code-line" data-line="142">    int bestScore = -simulations_ - 1;</span>
+<span class="code-line" data-line="143">    int player = board.currentPlayer();</span>
+<span class="code-line" data-line="144">    for (int column : board.legalMoves()) {</span>
+<span class="code-line" data-line="145">        int score = 0;</span>
+<span class="code-line" data-line="146">        for (int simulation = 0; simulation &lt; simulations_; ++simulation) {</span>
+<span class="code-line" data-line="147">            Board trial = board;</span>
+<span class="code-line" data-line="148">            trial.play(column);</span>
+<span class="code-line" data-line="149">            ++stats.states;</span>
+<span class="code-line" data-line="150">            while (!trial.result()) {</span>
+<span class="code-line" data-line="151">                auto moves = trial.legalMoves();</span>
+<span class="code-line" data-line="152">                std::uniform_int_distribution&lt;int&gt; pick(0, static_cast&lt;int&gt;(moves.size()) - 1);</span>
+<span class="code-line" data-line="153">                trial.play(moves[pick(generator_)]);</span>
+<span class="code-line" data-line="154">                ++stats.states;</span>
+<span class="code-line" data-line="155">            }</span>
+<span class="code-line" data-line="156">            if (*trial.result() == player) ++score;</span>
+<span class="code-line" data-line="157">            else if (*trial.result() != 0) --score;</span>
+<span class="code-line" data-line="158">        }</span>
+<span class="code-line" data-line="159">        if (score &gt; bestScore) {</span>
+<span class="code-line" data-line="160">            bestScore = score;</span>
+<span class="code-line" data-line="161">            best = column;</span>
+<span class="code-line" data-line="162">        }</span>
+<span class="code-line" data-line="163">    }</span>
+<span class="code-line" data-line="164">    stats.score = best ? bestScore : 0;</span>
+<span class="code-line" data-line="165">    return best;</span>
+<span class="code-line" data-line="166">}</span>
+<span class="code-line" data-line="167"></span>
+<span class="code-line" data-line="168">std::unique_ptr&lt;Strategy&gt; makeStrategy(const std::string&amp; name, int depth, int simulations, unsigned seed) {</span>
+<span class="code-line" data-line="169">    if (name == &quot;greedy&quot;) return std::make_unique&lt;GreedyStrategy&gt;();</span>
+<span class="code-line" data-line="170">    if (name == &quot;minimax&quot;) return std::make_unique&lt;MinimaxStrategy&gt;(depth, false);</span>
+<span class="code-line" data-line="171">    if (name == &quot;alphabeta&quot;) return std::make_unique&lt;MinimaxStrategy&gt;(depth, true);</span>
+<span class="code-line" data-line="172">    if (name == &quot;montecarlo&quot;) return std::make_unique&lt;MonteCarloStrategy&gt;(simulations, seed);</span>
+<span class="code-line" data-line="173">    throw std::invalid_argument(&quot;Nieznana strategia.&quot;);</span>
+<span class="code-line" data-line="174">}</span>
+<span class="code-line" data-line="175"></span>
+<span class="code-line" data-line="176">std::optional&lt;int&gt; measure(Strategy&amp; strategy, const Board&amp; board, SearchStats&amp; stats) {</span>
+<span class="code-line" data-line="177">    auto start = std::chrono::steady_clock::now();</span>
+<span class="code-line" data-line="178">    auto move = strategy.choose(board, stats);</span>
+<span class="code-line" data-line="179">    stats.milliseconds = std::chrono::duration&lt;double, std::milli&gt;(std::chrono::steady_clock::now() - start).count();</span>
+<span class="code-line" data-line="180">    return move;</span>
+<span class="code-line" data-line="181">}</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Dołącza deklaracje strategii i statystyk, których działanie definiujemy w tym pliku.</td></tr><tr><th scope="row">2</th><td>Udostępnia między innymi std::min i std::max do porównywania ocen.</td></tr><tr><th scope="row">3</th><td>Udostępnia tablice std::array o ustalonej liczbie elementów.</td></tr><tr><th scope="row">4</th><td>Udostępnia wyjątki informujące o nieprawidłowych argumentach.</td></tr><tr><th scope="row">6</th><td>Ogranicza widoczność poniższych pomocniczych nazw do tego pliku implementacji.</td></tr><tr><th scope="row">7</th><td>Ustala ocenę wygranej znacznie większą od zwykłych ocen niezakończonej planszy.</td></tr><tr><th scope="row">8</th><td>Ustala pomocniczą granicę ocen; ta liczba nie oznacza matematycznej nieskończoności.</td></tr><tr><th scope="row">10</th><td>Rozpoczyna ocenę planszy z perspektywy wskazanego gracza, bez zmieniania planszy.</td></tr><tr><th scope="row">11</th><td>Przypisuje rosnące wagi układom zawierającym od zera do czterech pionków.</td></tr><tr><th scope="row">12</th><td>Zapisuje przesunięcia dla poziomu, pionu i obu przekątnych.</td></tr><tr><th scope="row">13</th><td>Zaczyna sumowanie oceny od zera.</td></tr><tr><th scope="row">14</th><td>Sprawdza kolejno każdy wiersz jako początek analizowanego układu.</td></tr><tr><th scope="row">15</th><td>Sprawdza każdą kolumnę w bieżącym wierszu.</td></tr><tr><th scope="row">16</th><td>Dla danego pola sprawdza każdy z czterech kierunków.</td></tr><tr><th scope="row">17</th><td>Wyznacza wiersz ostatniego pola w odcinku czterech kolejnych pól.</td></tr><tr><th scope="row">18</th><td>Wyznacza kolumnę ostatniego pola w tym odcinku.</td></tr><tr><th scope="row">19</th><td>Pomija odcinek wychodzący poza planszę; używane kierunki nie zmniejszają numeru wiersza.</td></tr><tr><th scope="row">20</th><td>Zeruje licznik własnych pionków w analizowanym odcinku.</td></tr><tr><th scope="row">21</th><td>Zeruje licznik pionków przeciwnika w analizowanym odcinku.</td></tr><tr><th scope="row">22</th><td>Przechodzi przez cztery pola odcinka, zaczynając od jego początku.</td></tr><tr><th scope="row">23</th><td>Odczytuje pole przesunięte o i kroków w analizowanym kierunku.</td></tr><tr><th scope="row">24</th><td>Zwiększa licznik, gdy pole należy do ocenianego gracza.</td></tr><tr><th scope="row">25</th><td>Zlicza przeciwnika, jeżeli pole jest zajęte i nie należy do ocenianego gracza.</td></tr><tr><th scope="row">26</th><td>Kończy przegląd czterech pól bieżącego odcinka.</td></tr><tr><th scope="row">27</th><td>Dodaje wagę własnego układu, jeżeli przeciwnik go nie zablokował.</td></tr><tr><th scope="row">28</th><td>Odejmuje wagę układu przeciwnika, jeżeli własne pionki go nie blokują.</td></tr><tr><th scope="row">29</th><td>Kończy sprawdzanie kierunków dla bieżącego pola.</td></tr><tr><th scope="row">30</th><td>Kończy przegląd kolumn w bieżącym wierszu.</td></tr><tr><th scope="row">31</th><td>Kończy przegląd wszystkich wierszy planszy.</td></tr><tr><th scope="row">32</th><td>Zwraca sumę; dodatnia wartość sprzyja ocenianemu graczowi, ujemna przeciwnikowi.</td></tr><tr><th scope="row">33</th><td>Kończy funkcję heurystycznej oceny planszy.</td></tr><tr><th scope="row">35</th><td>Rozpoczyna ocenę zakończonej partii z ustalonej perspektywy gracza.</td></tr><tr><th scope="row">36</th><td>Przypisuje remisowi ocenę zero.</td></tr><tr><th scope="row">37</th><td>Premiuje wygraną i karze przegraną; pozostała głębokość sprzyja wcześniejszym wygranym i późniejszym przegranym.</td></tr><tr><th scope="row">38</th><td>Kończy funkcję oceny zakończonej partii.</td></tr><tr><th scope="row">39</th><td>Kończy obszar pomocniczych nazw dostępnych tylko w tym pliku.</td></tr><tr><th scope="row">41</th><td>Rozpoczyna zachłanny wybór kolumny; brak możliwego ruchu zostanie przedstawiony przez pusty optional.</td></tr><tr><th scope="row">42</th><td>Przywraca początkowe wartości wszystkich statystyk przed nowym wyborem ruchu.</td></tr><tr><th scope="row">43</th><td>Wlicza stan początkowy do liczby przeanalizowanych stanów.</td></tr><tr><th scope="row">44</th><td>Tworzy początkowo pusty wynik, ponieważ nie wybrano jeszcze żadnej kolumny.</td></tr><tr><th scope="row">45</th><td>Ustawia ocenę początkową niżej niż oceny kandydatów.</td></tr><tr><th scope="row">46</th><td>Zapamiętuje gracza, dla którego wybieramy ruch.</td></tr><tr><th scope="row">47</th><td>Rozpatruje każdą legalną kolumnę w ustalonej kolejności.</td></tr><tr><th scope="row">48</th><td>Kopiuje kompletny stan, dzięki czemu symulacja nie zmieni oryginalnej planszy.</td></tr><tr><th scope="row">49</th><td>Wykonuje kandydujący ruch na kopii planszy.</td></tr><tr><th scope="row">50</th><td>Zlicza nowy stan otrzymany po symulowanym ruchu.</td></tr><tr><th scope="row">51</th><td>Ocenia wynik zakończonej partii lub heurystykę; obecny optional z wartością zero oznacza remis.</td></tr><tr><th scope="row">52</th><td>Odpowiedzi przeciwnika sprawdza tylko wtedy, gdy kandydujący ruch nie zakończył gry.</td></tr><tr><th scope="row">53</th><td>Przechodzi przez legalne odpowiedzi przeciwnika na kandydujący ruch.</td></tr><tr><th scope="row">54</th><td>Tworzy osobną kopię stanu po kandydującym ruchu.</td></tr><tr><th scope="row">55</th><td>Wykonuje odpowiedź przeciwnika, korzystając z tury zapisanej w skopiowanej planszy.</td></tr><tr><th scope="row">56</th><td>Wlicza stan po odpowiedzi przeciwnika do statystyk.</td></tr><tr><th scope="row">57</th><td>Nadaje ruchowi niską ocenę, jeżeli pozwala przeciwnikowi natychmiast wygrać.</td></tr><tr><th scope="row">58</th><td>Kończy sprawdzanie odpowiedzi przeciwnika.</td></tr><tr><th scope="row">59</th><td>Kończy obsługę kandydata, po którym partia nadal trwa.</td></tr><tr><th scope="row">60</th><td>Aktualizuje wybór wyłącznie przy lepszej ocenie; remis ocen zachowuje wcześniejszą kolumnę.</td></tr><tr><th scope="row">61</th><td>Zapamiętuje nową najlepszą ocenę.</td></tr><tr><th scope="row">62</th><td>Zapisuje numer najlepszej znalezionej kolumny w optional.</td></tr><tr><th scope="row">63</th><td>Kończy aktualizację najlepszego ruchu.</td></tr><tr><th scope="row">64</th><td>Kończy porównywanie legalnych kandydatów.</td></tr><tr><th scope="row">65</th><td>Zapisuje ocenę wybranego ruchu lub zero, jeżeli żadnego ruchu nie było.</td></tr><tr><th scope="row">66</th><td>Zwraca wybraną kolumnę albo pusty optional.</td></tr><tr><th scope="row">67</th><td>Kończy zachłanny wybór ruchu.</td></tr><tr><th scope="row">69</th><td>Rozpoczyna definicję konstruktora przyjmującego głębokość, włączenie cięć i limit czasu.</td></tr><tr><th scope="row">70</th><td>Zapisuje argumenty bezpośrednio w polach tworzonego obiektu.</td></tr><tr><th scope="row">71</th><td>Sprawdza przyjęty zakres głębokości i dodatni limit czasu.</td></tr><tr><th scope="row">72</th><td>Przerywa tworzenie strategii wyjątkiem, jeżeli ustawienia są nieprawidłowe.</td></tr><tr><th scope="row">73</th><td>Kończy konstruktor MinimaxStrategy.</td></tr><tr><th scope="row">75</th><td>Rozpoczyna rekurencyjne szukanie oceny stanu przy podanej pozostałej głębokości.</td></tr><tr><th scope="row">76</th><td>Wlicza właśnie odwiedzony stan do statystyk, również jeżeli zaraz nastąpi przerwanie.</td></tr><tr><th scope="row">77</th><td>Sprawdza, czy monotoniczny zegar osiągnął wyznaczony termin zakończenia.</td></tr><tr><th scope="row">78</th><td>Oznacza, że żądana głębokość nie została w pełni obliczona.</td></tr><tr><th scope="row">79</th><td>Zwraca wartość pomocniczą; flaga complete=false zabrania traktowania jej jako ukończonej oceny.</td></tr><tr><th scope="row">80</th><td>Kończy obsługę przekroczenia limitu czasu.</td></tr><tr><th scope="row">81</th><td>Ocenia zakończoną partię z perspektywy gracza zapamiętanego na początku całego wyszukiwania.</td></tr><tr><th scope="row">82</th><td>Przy wyczerpaniu głębokości ocenia niezakończoną planszę bez dalszego rozwijania.</td></tr><tr><th scope="row">83</th><td>Sprawdza, czy ruch wykonuje nasz gracz, który chce zwiększać ocenę.</td></tr><tr><th scope="row">84</th><td>Ustawia początkową ocenę odpowiednio dla maksymalizowania albo minimalizowania.</td></tr><tr><th scope="row">85</th><td>Przechodzi przez legalne ruchy z badanego stanu.</td></tr><tr><th scope="row">86</th><td>Kopiuje stan przed wykonaniem pojedynczej kontynuacji.</td></tr><tr><th scope="row">87</th><td>Wykonuje rozpatrywany ruch na kopii planszy.</td></tr><tr><th scope="row">88</th><td>Ocenia następną pozycję rekurencyjnie, zmniejszając pozostałą głębokość o jeden.</td></tr><tr><th scope="row">89</th><td>Natychmiast przekazuje przerwanie do wyższego wywołania; nie porównuje niepełnej oceny.</td></tr><tr><th scope="row">90</th><td>Rozpoczyna wybieranie największej oceny podczas tury gracza głównego.</td></tr><tr><th scope="row">91</th><td>Zachowuje większą z dotychczasowej oceny i wyniku bieżącego ruchu.</td></tr><tr><th scope="row">92</th><td>Podnosi dolną granicę najlepszego wyniku dostępnego graczowi maksymalizującemu.</td></tr><tr><th scope="row">93</th><td>Przechodzi do przypadku, gdy ruch wykonuje przeciwnik.</td></tr><tr><th scope="row">94</th><td>Przeciwnik wybiera mniejszą ocenę, pogarszając wynik gracza głównego.</td></tr><tr><th scope="row">95</th><td>Obniża górną granicę wyniku, którą może narzucić przeciwnik.</td></tr><tr><th scope="row">96</th><td>Kończy rozróżnienie maksymalizowania i minimalizowania.</td></tr><tr><th scope="row">97</th><td>Przy włączonych cięciach sprawdza, czy dalsze rodzeństwo nie może poprawić decyzji przodka.</td></tr><tr><th scope="row">98</th><td>Zwiększa liczbę wykonanych odcięć, nie liczbę pominiętych stanów.</td></tr><tr><th scope="row">99</th><td>Pomija pozostałe ruchy tej gałęzi, kończąc bieżącą pętlę.</td></tr><tr><th scope="row">100</th><td>Kończy obsługę cięcia Alpha-Beta.</td></tr><tr><th scope="row">101</th><td>Kończy przegląd potrzebnych kontynuacji badanego stanu.</td></tr><tr><th scope="row">102</th><td>Zwraca ocenę stanu; po odcięciu może ona stanowić granicę wystarczającą do wyboru.</td></tr><tr><th scope="row">103</th><td>Kończy rekurencyjne wyszukiwanie oceny.</td></tr><tr><th scope="row">105</th><td>Rozpoczyna wybór ruchu Minimax na podstawie niezmienianej planszy wejściowej.</td></tr><tr><th scope="row">106</th><td>Czyści statystyki poprzedniego wyszukiwania.</td></tr><tr><th scope="row">107</th><td>Wlicza początkowy stan planszy do statystyk.</td></tr><tr><th scope="row">108</th><td>Pobiera legalne kolumny w stałej kolejności, zaczynając od najbliższych środka.</td></tr><tr><th scope="row">109</th><td>Zwraca brak ruchu, jeżeli partia się zakończyła lub nie ma legalnych kolumn.</td></tr><tr><th scope="row">110</th><td>Wyznacza termin zakończenia na podstawie aktualnego czasu i ustawionego limitu.</td></tr><tr><th scope="row">111</th><td>Zapamiętuje gracza, którego interes reprezentują wszystkie dalsze oceny.</td></tr><tr><th scope="row">112</th><td>Rozpoczyna porównania od oceny niższej od wszystkich dopuszczalnych wyników.</td></tr><tr><th scope="row">113</th><td>Ustawia początkową dolną granicę Alpha-Beta.</td></tr><tr><th scope="row">114</th><td>Zapisuje pierwszy legalny ruch jako wybór początkowy i ewentualny ruch awaryjny.</td></tr><tr><th scope="row">115</th><td>Rozpatruje każdą możliwą pierwszą kolumnę.</td></tr><tr><th scope="row">116</th><td>Tworzy samodzielny stan dla pierwszego ruchu.</td></tr><tr><th scope="row">117</th><td>Wykonuje pierwszy rozpatrywany ruch.</td></tr><tr><th scope="row">118</th><td>Przeszukuje dalszą część; głębokość jeden oznacza sam pierwszy ruch.</td></tr><tr><th scope="row">119</th><td>Sprawdza, czy wyszukiwanie któregokolwiek kandydata zostało przerwane.</td></tr><tr><th scope="row">120</th><td>Zeruje pole oceny; ta wartość przy complete=false nie jest wynikiem pełnego Minimaxu.</td></tr><tr><th scope="row">121</th><td>Zwraca pierwszy legalny ruch awaryjny, bez deklarowania ukończenia żądanej głębokości.</td></tr><tr><th scope="row">122</th><td>Kończy obsługę nieukończonego wyszukiwania.</td></tr><tr><th scope="row">123</th><td>Zastępuje najlepszy ruch tylko przy ściśle większej ocenie.</td></tr><tr><th scope="row">124</th><td>Zapamiętuje najlepszą znalezioną ocenę.</td></tr><tr><th scope="row">125</th><td>Zapamiętuje odpowiadającą jej kolumnę.</td></tr><tr><th scope="row">126</th><td>Kończy aktualizację najlepszego ruchu.</td></tr><tr><th scope="row">127</th><td>Przy włączonych cięciach przekazuje dotychczasowy najlepszy wynik jako granicę kolejnych poszukiwań.</td></tr><tr><th scope="row">128</th><td>Kończy porównywanie pierwszych ruchów.</td></tr><tr><th scope="row">129</th><td>Zapisuje ocenę najlepszego ruchu po ukończeniu całego żądanego wyszukiwania.</td></tr><tr><th scope="row">130</th><td>Zwraca kolumnę wybraną przez ukończony Minimax.</td></tr><tr><th scope="row">131</th><td>Kończy wybór ruchu Minimax.</td></tr><tr><th scope="row">133</th><td>Rozpoczyna konstruktor strategii przyjmującej liczbę symulacji i ziarno losowania.</td></tr><tr><th scope="row">134</th><td>Zapisuje liczbę symulacji i inicjuje generator podanym ziarnem.</td></tr><tr><th scope="row">135</th><td>Odrzuca konfigurację bez co najmniej jednej symulacji dla każdego ruchu.</td></tr><tr><th scope="row">136</th><td>Kończy konstruktor MonteCarloStrategy.</td></tr><tr><th scope="row">138</th><td>Rozpoczyna wybór ruchu przez porównywanie losowo dokończonych partii.</td></tr><tr><th scope="row">139</th><td>Przywraca początkowe wartości statystyk jednego wyboru.</td></tr><tr><th scope="row">140</th><td>Wlicza początkową planszę jako pierwszy stan.</td></tr><tr><th scope="row">141</th><td>Tworzy pusty optional, ponieważ nie wybrano jeszcze kolumny.</td></tr><tr><th scope="row">142</th><td>Ustawia ocenę poniżej najgorszej możliwej sumy wyników symulacji.</td></tr><tr><th scope="row">143</th><td>Zapamiętuje gracza, dla którego liczymy wygrane i przegrane.</td></tr><tr><th scope="row">144</th><td>Sprawdza kolejno wszystkie legalne pierwsze ruchy.</td></tr><tr><th scope="row">145</th><td>Zeruje sumę wyników losowych partii dla bieżącej kolumny.</td></tr><tr><th scope="row">146</th><td>Wykonuje ustaloną liczbę symulacji dla tej kolumny.</td></tr><tr><th scope="row">147</th><td>Zaczyna każdą symulację od kopii pierwotnej planszy.</td></tr><tr><th scope="row">148</th><td>Wykonuje badany pierwszy ruch.</td></tr><tr><th scope="row">149</th><td>Zlicza stan po tym ruchu, osobno dla każdej symulacji.</td></tr><tr><th scope="row">150</th><td>Losowo kontynuuje grę, dopóki optional wyniku pozostaje pusty.</td></tr><tr><th scope="row">151</th><td>Pobiera legalne ruchy aktualnego gracza symulowanej partii.</td></tr><tr><th scope="row">152</th><td>Tworzy równomierne losowanie indeksu od zera do ostatniego elementu listy.</td></tr><tr><th scope="row">153</th><td>Losuje indeks, odczytuje kolumnę i wykonuje ruch na symulowanej planszy.</td></tr><tr><th scope="row">154</th><td>Zlicza kolejny symulowany stan, także gdy identyczny układ wystąpił wcześniej.</td></tr><tr><th scope="row">155</th><td>Kończy losowe dokańczanie jednej partii.</td></tr><tr><th scope="row">156</th><td>Dodaje punkt za wygraną gracza, który wybierał pierwszy ruch.</td></tr><tr><th scope="row">157</th><td>Odejmuje punkt za przegraną; remis z wartością zero nie zmienia sumy.</td></tr><tr><th scope="row">158</th><td>Kończy wszystkie symulacje dla bieżącej kolumny.</td></tr><tr><th scope="row">159</th><td>Sprawdza, czy suma wyników tej kolumny przewyższa dotychczasową najlepszą.</td></tr><tr><th scope="row">160</th><td>Zapamiętuje największą sumę wygranych minus przegranych.</td></tr><tr><th scope="row">161</th><td>Zapamiętuje kolumnę dającą tę sumę.</td></tr><tr><th scope="row">162</th><td>Kończy aktualizację wyboru Monte Carlo.</td></tr><tr><th scope="row">163</th><td>Kończy porównywanie dostępnych pierwszych ruchów.</td></tr><tr><th scope="row">164</th><td>Zapisuje surową sumę wyników symulacji; jej skala różni się od heurystyki Minimaxu.</td></tr><tr><th scope="row">165</th><td>Zwraca najlepszą kolumnę albo pusty optional przy zakończonej grze.</td></tr><tr><th scope="row">166</th><td>Kończy wybór ruchu Monte Carlo, który nie przechowuje drzewa wyszukiwania.</td></tr><tr><th scope="row">168</th><td>Rozpoczyna tworzenie konkretnej strategii na podstawie jej nazwy i ustawień.</td></tr><tr><th scope="row">169</th><td>Zwraca wskaźnik będący jedynym właścicielem nowego obiektu strategii zachłannej.</td></tr><tr><th scope="row">170</th><td>Tworzy Minimax z żądaną głębokością i wyłączonymi cięciami.</td></tr><tr><th scope="row">171</th><td>Tworzy ten sam Minimax, włączając optymalizację Alpha-Beta.</td></tr><tr><th scope="row">172</th><td>Tworzy Monte Carlo z liczbą symulacji i ziarnem generatora.</td></tr><tr><th scope="row">173</th><td>Zgłasza wyjątek, jeżeli nazwa nie odpowiada żadnej obsługiwanej strategii.</td></tr><tr><th scope="row">174</th><td>Kończy funkcję tworzącą strategie.</td></tr><tr><th scope="row">176</th><td>Rozpoczyna wspólny pomiar czasu działania dowolnej strategii.</td></tr><tr><th scope="row">177</th><td>Zapamiętuje chwilę bezpośrednio przed wyborem ruchu.</td></tr><tr><th scope="row">178</th><td>Uruchamia konkretną implementację choose przez wspólny interfejs Strategy.</td></tr><tr><th scope="row">179</th><td>Przelicza upływ czasu na milisekundy z częścią ułamkową i zapisuje go w statystykach.</td></tr><tr><th scope="row">180</th><td>Przekazuje wybrany ruch wywołującemu, zachowując pusty optional, jeśli ruchu nie ma.</td></tr><tr><th scope="row">181</th><td>Kończy funkcję pomiarową.</td></tr></tbody></table></details>
+</div></details>
+<p>Zapiszcie <code>tests.cpp</code> i uruchomcie osobny program testowy. Zawiera drugi <code>main</code>, więc nie dołączamy go później do kompilacji gry.</p>
+<details class="source-file" id="file-tests-cpp">
+<summary>tests.cpp <span class="meta">77 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/tests.cpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-tests-cpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-tests-cpp" data-source-file="tests.cpp"><span class="code-line" data-line="1">#include &quot;Strategy.hpp&quot;</span>
+<span class="code-line" data-line="2">#include &lt;algorithm&gt;</span>
+<span class="code-line" data-line="3">#include &lt;array&gt;</span>
+<span class="code-line" data-line="4">#include &lt;iostream&gt;</span>
+<span class="code-line" data-line="5">#include &lt;stdexcept&gt;</span>
+<span class="code-line" data-line="6"></span>
+<span class="code-line" data-line="7">void require(bool condition, const char* message) {</span>
+<span class="code-line" data-line="8">    if (!condition) throw std::runtime_error(message);</span>
+<span class="code-line" data-line="9">}</span>
+<span class="code-line" data-line="10"></span>
+<span class="code-line" data-line="11">Board position(std::initializer_list&lt;int&gt; moves, int rows = 6, int columns = 7) {</span>
+<span class="code-line" data-line="12">    Board board(rows, columns);</span>
+<span class="code-line" data-line="13">    for (int column : moves) require(board.play(column), &quot;Nielegalny ruch w tescie.&quot;);</span>
+<span class="code-line" data-line="14">    return board;</span>
+<span class="code-line" data-line="15">}</span>
+<span class="code-line" data-line="16"></span>
+<span class="code-line" data-line="17">int main() {</span>
+<span class="code-line" data-line="18">    Board board;</span>
+<span class="code-line" data-line="19">    require(!board.play(-1) &amp;&amp; !board.play(7), &quot;Granice kolumn.&quot;);</span>
+<span class="code-line" data-line="20">    require(board.currentPlayer() == 1 &amp;&amp; !board.result(), &quot;Niepoprawny ruch zmienil stan.&quot;);</span>
+<span class="code-line" data-line="21">    require(board.play(0) &amp;&amp; board.at(5, 0) == 1, &quot;Pionek nie spadl na dol.&quot;);</span>
+<span class="code-line" data-line="22">    require(board.currentPlayer() == 2, &quot;Zmiana gracza.&quot;);</span>
+<span class="code-line" data-line="23">    for (int i = 0; i &lt; 5; ++i) require(board.play(0), &quot;Wypelnianie kolumny.&quot;);</span>
+<span class="code-line" data-line="24">    require(!board.play(0) &amp;&amp; board.currentPlayer() == 1, &quot;Pelna kolumna zmienia stan.&quot;);</span>
+<span class="code-line" data-line="25">    auto legal = board.legalMoves();</span>
+<span class="code-line" data-line="26">    require(std::find(legal.begin(), legal.end(), 0) == legal.end(), &quot;Pelna kolumna jest legalna.&quot;);</span>
+<span class="code-line" data-line="27"></span>
+<span class="code-line" data-line="28">    Board horizontal = position({0, 6, 1, 6, 2, 5, 3});</span>
+<span class="code-line" data-line="29">    Board vertical = position({0, 1, 0, 1, 0, 2, 0});</span>
+<span class="code-line" data-line="30">    Board diagonal = position({1, 2, 0, 2, 2, 3, 3, 0, 3, 3, 0, 1, 2, 1, 1, 0}, 4, 4);</span>
+<span class="code-line" data-line="31">    Board reverse = position({3, 3, 0, 1, 1, 0, 0, 3, 3, 0, 2, 1, 1, 2, 2}, 4, 4);</span>
+<span class="code-line" data-line="32">    require(horizontal.result() == 1 &amp;&amp; vertical.result() == 1, &quot;Wygrana pozioma lub pionowa.&quot;);</span>
+<span class="code-line" data-line="33">    require(diagonal.result() == 2 &amp;&amp; reverse.result() == 1, &quot;Wygrana po przekatnej.&quot;);</span>
+<span class="code-line" data-line="34">    require(!horizontal.play(4) &amp;&amp; horizontal.legalMoves().empty(), &quot;Ruch po koncu gry.&quot;);</span>
+<span class="code-line" data-line="35">    Board draw = position({3, 2, 1, 3, 2, 2, 2, 1, 3, 3, 0, 1, 0, 1, 0, 0}, 4, 4);</span>
+<span class="code-line" data-line="36">    require(draw.result().has_value() &amp;&amp; *draw.result() == 0, &quot;Rozpoznawanie remisu.&quot;);</span>
+<span class="code-line" data-line="37"></span>
+<span class="code-line" data-line="38">    Board winning = position({0, 6, 1, 6, 2, 5});</span>
+<span class="code-line" data-line="39">    Board blocking = position({6, 0, 6, 1, 5, 2});</span>
+<span class="code-line" data-line="40">    SearchStats stats;</span>
+<span class="code-line" data-line="41">    GreedyStrategy greedy;</span>
+<span class="code-line" data-line="42">    MinimaxStrategy minimax(2, true);</span>
+<span class="code-line" data-line="43">    require(greedy.choose(winning, stats) == 3, &quot;Greedy pomija wygrana.&quot;);</span>
+<span class="code-line" data-line="44">    require(greedy.choose(blocking, stats) == 3, &quot;Greedy nie blokuje.&quot;);</span>
+<span class="code-line" data-line="45">    require(minimax.choose(winning, stats) == 3, &quot;Minimax pomija wygrana.&quot;);</span>
+<span class="code-line" data-line="46">    require(minimax.choose(blocking, stats) == 3, &quot;Minimax nie blokuje.&quot;);</span>
+<span class="code-line" data-line="47">    require(winning.at(5, 3) == 0 &amp;&amp; !winning.result(), &quot;AI zmienia oryginalna plansze.&quot;);</span>
+<span class="code-line" data-line="48">    MonteCarloStrategy monteA(20, 2026), monteB(20, 2026);</span>
+<span class="code-line" data-line="49">    SearchStats first, second;</span>
+<span class="code-line" data-line="50">    require(monteA.choose(blocking, first) == monteB.choose(blocking, second), &quot;Ziarno nie odtwarza ruchu.&quot;);</span>
+<span class="code-line" data-line="51">    require(first.states == second.states &amp;&amp; first.score == second.score, &quot;Niepowtarzalne symulacje.&quot;);</span>
+<span class="code-line" data-line="52">    for (const std::string name : {&quot;greedy&quot;, &quot;minimax&quot;, &quot;alphabeta&quot;, &quot;montecarlo&quot;}) {</span>
+<span class="code-line" data-line="53">        auto strategy = makeStrategy(name, 2, 10, 2026);</span>
+<span class="code-line" data-line="54">        require(!strategy-&gt;choose(horizontal, stats) &amp;&amp; !strategy-&gt;choose(draw, stats), &quot;AI gra po koncu.&quot;);</span>
+<span class="code-line" data-line="55">    }</span>
+<span class="code-line" data-line="56"></span>
+<span class="code-line" data-line="57">    std::mt19937 generator(2026);</span>
+<span class="code-line" data-line="58">    for (int test = 0; test &lt; 30; ++test) {</span>
+<span class="code-line" data-line="59">        Board sample(test % 2 == 0 ? 6 : 8, test % 2 == 0 ? 7 : 9);</span>
+<span class="code-line" data-line="60">        for (int ply = 0; ply &lt; test % 13 &amp;&amp; !sample.result(); ++ply) {</span>
+<span class="code-line" data-line="61">            auto moves = sample.legalMoves();</span>
+<span class="code-line" data-line="62">            sample.play(moves[generator() % moves.size()]);</span>
+<span class="code-line" data-line="63">        }</span>
+<span class="code-line" data-line="64">        for (int depth = 1; depth &lt;= 3; ++depth) {</span>
+<span class="code-line" data-line="65">            MinimaxStrategy plain(depth, false), pruned(depth, true);</span>
+<span class="code-line" data-line="66">            auto a = plain.choose(sample, first);</span>
+<span class="code-line" data-line="67">            auto b = pruned.choose(sample, second);</span>
+<span class="code-line" data-line="68">            require(first.complete &amp;&amp; second.complete, &quot;Test porownawczy przekroczyl czas.&quot;);</span>
+<span class="code-line" data-line="69">            require(a == b &amp;&amp; first.score == second.score, &quot;Alpha-Beta zmienia wynik Minimax.&quot;);</span>
+<span class="code-line" data-line="70">            require(second.states &lt;= first.states, &quot;Ciecia zwiekszaja liczbe stanow.&quot;);</span>
+<span class="code-line" data-line="71">        }</span>
+<span class="code-line" data-line="72">    }</span>
+<span class="code-line" data-line="73">    MinimaxStrategy limited(12, false, 1);</span>
+<span class="code-line" data-line="74">    auto fallback = limited.choose(Board(8, 9), stats);</span>
+<span class="code-line" data-line="75">    require(fallback.has_value() &amp;&amp; !stats.complete, &quot;Brak oznaczenia przerwanego wyszukiwania.&quot;);</span>
+<span class="code-line" data-line="76">    std::cout &lt;&lt; &quot;OK: plansza, trzy AI, 90 porownan Minimax/Alpha-Beta i limit czasu.\n&quot;;</span>
+<span class="code-line" data-line="77">}</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Udostępnia model planszy, strategie i statystyki używane w testach.</td></tr><tr><th scope="row">2</th><td>Udostępnia std::find, które wyszukuje element na liście.</td></tr><tr><th scope="row">3</th><td>Udostępnia tablicę std::array z biblioteki standardowej.</td></tr><tr><th scope="row">4</th><td>Udostępnia wypisywanie komunikatu potwierdzającego wykonanie testów.</td></tr><tr><th scope="row">5</th><td>Udostępnia wyjątek runtime_error sygnalizujący niezaliczony test.</td></tr><tr><th scope="row">7</th><td>Definiuje pomocnicze sprawdzenie warunku z opisem ewentualnego błędu.</td></tr><tr><th scope="row">8</th><td>Przerywa testy wyjątkiem, jeśli sprawdzany warunek jest fałszywy.</td></tr><tr><th scope="row">9</th><td>Kończy funkcję require, używaną wyłącznie w sprawdzeniach.</td></tr><tr><th scope="row">11</th><td>Definiuje tworzenie pozycji testowej przez sekwencję legalnych ruchów.</td></tr><tr><th scope="row">12</th><td>Tworzy pustą planszę o przekazanym albo domyślnym rozmiarze.</td></tr><tr><th scope="row">13</th><td>Wykonuje kolejne ruchy testowe i wymaga poprawności każdego ruchu.</td></tr><tr><th scope="row">14</th><td>Zwraca gotowy stan planszy z zapisanymi turą i wynikiem.</td></tr><tr><th scope="row">15</th><td>Kończy funkcję przygotowującą pozycje testowe.</td></tr><tr><th scope="row">17</th><td>Rozpoczyna osobny program testowy; nie łączymy go z main.cpp gry.</td></tr><tr><th scope="row">18</th><td>Tworzy domyślną, pustą planszę o rozmiarze 6 na 7.</td></tr><tr><th scope="row">19</th><td>Sprawdza odrzucanie ujemnego indeksu i indeksu poza prawym brzegiem.</td></tr><tr><th scope="row">20</th><td>Sprawdza, że odrzucone ruchy nie zmieniły gracza ani wyniku.</td></tr><tr><th scope="row">21</th><td>Sprawdza wykonanie ruchu i opadnięcie pionka na najniższe pole.</td></tr><tr><th scope="row">22</th><td>Sprawdza przekazanie tury drugiemu graczowi po poprawnym ruchu.</td></tr><tr><th scope="row">23</th><td>Dokłada pięć pionków do tej samej kolumny, aż będzie pełna.</td></tr><tr><th scope="row">24</th><td>Sprawdza odrzucenie następnego pionka bez zmieniania bieżącego gracza.</td></tr><tr><th scope="row">25</th><td>Pobiera listę legalnych kolumn z częściowo zapełnionej planszy.</td></tr><tr><th scope="row">26</th><td>Wymaga, aby pełna kolumna nie występowała na liście legalnych ruchów.</td></tr><tr><th scope="row">28</th><td>Przygotowuje partię zakończoną poziomą wygraną gracza 1.</td></tr><tr><th scope="row">29</th><td>Przygotowuje partię zakończoną pionową wygraną gracza 1.</td></tr><tr><th scope="row">30</th><td>Przygotowuje przekątną wygraną gracza 2 na ostatnim polu planszy 4 na 4.</td></tr><tr><th scope="row">31</th><td>Przygotowuje wygraną gracza 1 po przekątnej przeciwnego kierunku.</td></tr><tr><th scope="row">32</th><td>Weryfikuje zwycięzcę w pozycjach z linią poziomą i pionową.</td></tr><tr><th scope="row">33</th><td>Weryfikuje zwycięzców dla obu kierunków przekątnych.</td></tr><tr><th scope="row">34</th><td>Sprawdza odrzucenie dalszego ruchu oraz pustą listę ruchów po zwycięstwie.</td></tr><tr><th scope="row">35</th><td>Przygotowuje pełną planszę 4 na 4 bez czterech połączonych pionków.</td></tr><tr><th scope="row">36</th><td>Sprawdza obecność wyniku oraz jego wartość 0, oznaczającą remis.</td></tr><tr><th scope="row">38</th><td>Przygotowuje pozycję, w której gracz na ruchu może natychmiast wygrać.</td></tr><tr><th scope="row">39</th><td>Przygotowuje pozycję wymagającą zablokowania natychmiastowej wygranej przeciwnika.</td></tr><tr><th scope="row">40</th><td>Tworzy miejsce na statystyki kolejnych wywołań strategii.</td></tr><tr><th scope="row">41</th><td>Tworzy strategię zachłanną, sprawdzaną w najbliższych testach.</td></tr><tr><th scope="row">42</th><td>Tworzy Minimax głębokości 2 z włączonymi cięciami Alpha-Beta.</td></tr><tr><th scope="row">43</th><td>Wymaga, aby strategia zachłanna wybrała zwycięską kolumnę o indeksie 3.</td></tr><tr><th scope="row">44</th><td>Wymaga, aby strategia zachłanna zablokowała zagrożenie w kolumnie o indeksie 3.</td></tr><tr><th scope="row">45</th><td>Wymaga, aby Minimax wykorzystał natychmiastowe zwycięstwo w kolumnie o indeksie 3.</td></tr><tr><th scope="row">46</th><td>Wymaga, aby Minimax zablokował zwycięstwo przeciwnika w kolumnie o indeksie 3.</td></tr><tr><th scope="row">47</th><td>Sprawdza, że badanie ruchów AI pozostawiło oryginalną planszę bez zmian.</td></tr><tr><th scope="row">48</th><td>Tworzy dwie strategie Monte Carlo z identyczną liczbą symulacji i ziarnem.</td></tr><tr><th scope="row">49</th><td>Przygotowuje oddzielne statystyki dla dwóch porównywanych strategii.</td></tr><tr><th scope="row">50</th><td>Sprawdza, że identyczne ustawienia losowania dają ten sam wybrany ruch.</td></tr><tr><th scope="row">51</th><td>Sprawdza również zgodność liczby stanów i wyniku punktowego symulacji.</td></tr><tr><th scope="row">52</th><td>Przechodzi przez nazwy wszystkich strategii oraz dwóch wariantów Minimax.</td></tr><tr><th scope="row">53</th><td>Tworzy bieżącą strategię z takimi samymi podstawowymi ustawieniami testu.</td></tr><tr><th scope="row">54</th><td>Wymaga braku ruchu zarówno po zwycięstwie, jak i po remisie.</td></tr><tr><th scope="row">55</th><td>Kończy sprawdzanie strategii na zakończonych planszach.</td></tr><tr><th scope="row">57</th><td>Tworzy generator liczb pseudolosowych ze stałym ziarnem dla powtarzalnych testów.</td></tr><tr><th scope="row">58</th><td>Przygotowuje 30 pozycji służących do porównania dwóch wariantów Minimax.</td></tr><tr><th scope="row">59</th><td>Naprzemiennie tworzy planszę klasyczną i powiększoną, używając reszty z dzielenia.</td></tr><tr><th scope="row">60</th><td>Wykonuje wybraną liczbę ruchów przygotowawczych, o ile partia wcześniej się nie skończy.</td></tr><tr><th scope="row">61</th><td>Pobiera legalne ruchy bieżącej pozycji przygotowywanej do testu.</td></tr><tr><th scope="row">62</th><td>Wybiera ruch generatorem i wykonuje go; ta prosta metoda wystarcza do tworzenia przypadków testowych.</td></tr><tr><th scope="row">63</th><td>Kończy przygotowanie jednej planszy do porównania algorytmów.</td></tr><tr><th scope="row">64</th><td>Sprawdza tę samą pozycję na głębokościach 1, 2 i 3.</td></tr><tr><th scope="row">65</th><td>Tworzy dwa Minimax o tej samej głębokości, bez cięć i z cięciami.</td></tr><tr><th scope="row">66</th><td>Uruchamia pełny Minimax i zapisuje wybraną kolumnę oraz statystyki.</td></tr><tr><th scope="row">67</th><td>Uruchamia wariant Alpha-Beta dla dokładnie tej samej planszy.</td></tr><tr><th scope="row">68</th><td>Wymaga ukończenia obu obliczeń, aby porównanie wyników miało sens.</td></tr><tr><th scope="row">69</th><td>Sprawdza zgodność wybranego ruchu i oceny, ponieważ cięcia nie powinny ich zmieniać.</td></tr><tr><th scope="row">70</th><td>Wymaga, aby wariant z cięciami nie odwiedzał większej liczby stanów.</td></tr><tr><th scope="row">71</th><td>Kończy porównania na trzech głębokościach dla jednej pozycji.</td></tr><tr><th scope="row">72</th><td>Kończy serię 30 pozycji, dając łącznie 90 porównań.</td></tr><tr><th scope="row">73</th><td>Tworzy głęboki Minimax bez cięć z bardzo krótkim limitem jednej milisekundy.</td></tr><tr><th scope="row">74</th><td>Wywołuje ograniczoną strategię na pustej, powiększonej planszy i odbiera ruch awaryjny.</td></tr><tr><th scope="row">75</th><td>Sprawdza obecność ruchu awaryjnego oraz oznaczenie przeszukiwania jako nieukończonego.</td></tr><tr><th scope="row">76</th><td>Wypisuje potwierdzenie dopiero po przejściu wszystkich wcześniejszych sprawdzeń.</td></tr><tr><th scope="row">77</th><td>Kończy osobny program testowy z kodem 0, jeśli żadne sprawdzenie nie zawiodło.</td></tr></tbody></table></details>
+</div></details>
+<pre class="command">g++ -std=c++17 -O2 -Wall -Wextra -Wpedantic Board.cpp Strategy.cpp tests.cpp -o tests.exe
+.\tests.exe</pre>
+<p class="checkpoint">Oczekiwany wynik to <code>OK: plansza, trzy AI, 90 porownan Minimax/Alpha-Beta i limit czasu.</code> Jeśli test kończy się błędem, poprawcie wskazany problem przed dalszą pracą. Te testy obejmują wygrane, remis, taktykę, powtarzalność i limit czasu. Nie sprawdzają wszystkich możliwych partii.</p>
+<p>Na obronę narysujcie małe drzewo z dwoma ruchami i odpowiedziami przeciwnika. Pokażcie wybór minimum i maksimum. Wyjaśnijcie, dlaczego oceny Monte Carlo nie porównujemy liczbowo z oceną heurystyczną.</p>
+</section>
+
+<section id="zadanie-4">
+<h2>Zadanie 4. Określcie koszt i granicę przeszukiwania</h2>
+<p>Przyjmijcie oznaczenia <code>R</code> i <code>C</code> dla wierszy i kolumn, <code>b</code> dla liczby legalnych ruchów oraz <code>d</code> dla głębokości. Maksymalnie b wynosi 7 lub 9. Pełne kolumny i wcześniejsze zwycięstwa zmniejszają rzeczywiste drzewo.</p>
+<table><thead><tr><th>Element</th><th>Oszacowanie dla naszego kodu</th></tr></thead><tbody>
+<tr><td>Pełne drzewo do głębokości d</td><td>Najwyżej <code>1 + b + b² + … + bᵈ</code> stanów przy stałym maksymalnym b.</td></tr>
+<tr><td>Czas Minimax</td><td><code>O(bᵈ · R · C)</code>. Liczba gałęzi rośnie wykładniczo, a kopiowanie i ocena planszy kosztują do O(R · C).</td></tr>
+<tr><td>Czas Alpha-Beta</td><td>Ten sam najgorszy przypadek. Przy idealnej kolejności ruchów czynnik drzewa spada do rzędu <code>b^(d/2)</code>. Nie zakładamy, że nasza kolejność zawsze to osiągnie.</td></tr>
+<tr><td>Pamięć przeszukiwania</td><td><code>O(d · (R · C + b))</code>, czyli kopie plansz i listy ruchów na bieżącej ścieżce. Nie O(bᵈ), bo całego drzewa nie przechowujemy.</td></tr>
+<tr><td>Zachłanna</td><td>Konserwatywnie <code>O(b² · R · C)</code>, bo sprawdza także natychmiastowe odpowiedzi.</td></tr>
+<tr><td>Monte Carlo</td><td>Konserwatywnie <code>O(b · s · m · R · C)</code>, gdzie s to symulacje na kolumnę, a m maksymalna liczba ruchów do końca. Pamięć zależy głównie od jednej symulowanej planszy.</td></tr>
+</tbody></table>
+<p>Przykładowo sam ostatni poziom pełnego drzewa przy d=5 ma najwyżej 7⁵ = 16 807 albo 9⁵ = 59 049 gałęzi. To obliczenie teoretyczne, bez zakończonych wcześniej partii. Nie jest pomiarem działania programu.</p>
+<p>Ustalona konwencja projektu uznaje medianę czasu wyboru ruchu co najmniej 1000 ms za nieakceptowalną. Mediana to środkowa z pięciu uporządkowanych wartości. Limit bezpieczeństwa wynosi 2000 ms na wyszukiwanie. Nieukończony pomiar odnotowujemy osobno, bez udawania, że znamy pełny czas dla tej głębokości.</p>
+<p class="checkpoint">Zapiszcie te oszacowania i próg w notatkach przed pomiarami. Jeżeli do głębokości 12 nie zostanie osiągnięty próg, wniosek brzmi „nie osiągnięto granicy w badanym zakresie”. Limit 12 jest ograniczeniem tej wersji programu, nie dowodem, że głębsze wyszukiwanie jest niemożliwe.</p>
+</section>
+
+<section id="zadanie-5">
+<h2>Zadanie 5. Połączcie grę, wykonajcie badania i napiszcie sprawozdanie</h2>
+<ol>
+<li>Zapiszcie pozostałe pliki. <code>Game</code> obsługuje tury i konsolę. Pusty wskaźnik strategii oznacza człowieka. <code>Experiments</code> uruchamia pomiary i pojedynki. <code>main</code> udostępnia menu.</li>
+<li>Skompilujcie grę wskazanym poleceniem. Nie używajcie <code>*.cpp</code>, bo włączyłoby także testowy <code>main</code>.</li>
+<li>Uruchomcie najpierw wszystkie trzy tryby gry. Następnie wykonajcie pomiary i turniej.</li>
+</ol>
+<p>Program działa w pętli menu. Po zakończeniu gry albo badań zatrzymuje się z wynikiem na ekranie. Naciśnięcie Enter wraca do menu, a dopiero wybór <code>0</code> zamyka program. W zwykłej grze AI kontra AI Enter zatwierdza każdy kolejny ruch, więc można spokojnie obejrzeć planszę. Automatyczny turniej z opcji 3 sam rozgrywa partie i zapisuje ich przebieg w raporcie.</p>
+<details class="source-file" id="file-Game-hpp">
+<summary>Game.hpp <span class="meta">18 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Game.hpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Game-hpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Game-hpp" data-source-file="Game.hpp"><span class="code-line" data-line="1">#pragma once</span>
+<span class="code-line" data-line="2">#include &quot;Strategy.hpp&quot;</span>
+<span class="code-line" data-line="3">#include &lt;array&gt;</span>
+<span class="code-line" data-line="4">#include &lt;memory&gt;</span>
+<span class="code-line" data-line="5">#include &lt;string&gt;</span>
+<span class="code-line" data-line="6"></span>
+<span class="code-line" data-line="7">int readInt(const std::string&amp; prompt, int minimum, int maximum);</span>
+<span class="code-line" data-line="8">void waitForEnter(const std::string&amp; prompt);</span>
+<span class="code-line" data-line="9"></span>
+<span class="code-line" data-line="10">class Game {</span>
+<span class="code-line" data-line="11">    Board board_;</span>
+<span class="code-line" data-line="12">    std::array&lt;std::unique_ptr&lt;Strategy&gt;, 2&gt; players_;</span>
+<span class="code-line" data-line="13">    void print() const;</span>
+<span class="code-line" data-line="14"></span>
+<span class="code-line" data-line="15">public:</span>
+<span class="code-line" data-line="16">    Game(int rows, int columns, std::unique_ptr&lt;Strategy&gt; first, std::unique_ptr&lt;Strategy&gt; second);</span>
+<span class="code-line" data-line="17">    void run();</span>
+<span class="code-line" data-line="18">};</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Zapobiega wielokrotnemu dołączeniu tego nagłówka podczas kompilowania jednego pliku.</td></tr><tr><th scope="row">2</th><td>Udostępnia Board, Strategy, SearchStats i funkcję pomiaru ruchu AI.</td></tr><tr><th scope="row">3</th><td>Udostępnia tablicę std::array o ustalonej liczbie elementów.</td></tr><tr><th scope="row">4</th><td>Udostępnia std::unique_ptr do automatycznego zarządzania obiektami strategii.</td></tr><tr><th scope="row">5</th><td>Udostępnia std::string używany w komunikatach wejściowych.</td></tr><tr><th scope="row">7</th><td>Deklaruje wczytywanie pojedynczej liczby całkowitej z dozwolonego zakresu.</td></tr><tr><th scope="row">8</th><td>Deklaruje wspólną funkcję zatrzymującą program do naciśnięcia Enter.</td></tr><tr><th scope="row">10</th><td>Rozpoczyna klasę Game, która obsługuje przebieg partii i konsolę.</td></tr><tr><th scope="row">11</th><td>Przechowuje własny stan aktualnie rozgrywanej partii.</td></tr><tr><th scope="row">12</th><td>Przechowuje dwie strategie; pusty wskaźnik oznacza gracza sterowanego przez człowieka.</td></tr><tr><th scope="row">13</th><td>Deklaruje prywatną funkcję wyświetlającą planszę bez zmieniania jej.</td></tr><tr><th scope="row">15</th><td>Udostępnia konstruktor i uruchamianie gry pozostałym plikom.</td></tr><tr><th scope="row">16</th><td>Deklaruje konstruktor przejmujący własność strategii obu graczy.</td></tr><tr><th scope="row">17</th><td>Deklaruje prowadzenie partii od bieżącego stanu do wyniku.</td></tr><tr><th scope="row">18</th><td>Kończy definicję klasy Game wymaganym średnikiem.</td></tr></tbody></table></details>
+</div></details>
+<details class="source-file" id="file-Game-cpp">
+<summary>Game.cpp <span class="meta">61 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Game.cpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Game-cpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Game-cpp" data-source-file="Game.cpp"><span class="code-line" data-line="1">#include &quot;Game.hpp&quot;</span>
+<span class="code-line" data-line="2">#include &lt;iostream&gt;</span>
+<span class="code-line" data-line="3">#include &lt;sstream&gt;</span>
+<span class="code-line" data-line="4">#include &lt;stdexcept&gt;</span>
+<span class="code-line" data-line="5">#include &lt;utility&gt;</span>
+<span class="code-line" data-line="6"></span>
+<span class="code-line" data-line="7">int readInt(const std::string&amp; prompt, int minimum, int maximum) {</span>
+<span class="code-line" data-line="8">    while (true) {</span>
+<span class="code-line" data-line="9">        std::cout &lt;&lt; prompt;</span>
+<span class="code-line" data-line="10">        std::string line;</span>
+<span class="code-line" data-line="11">        if (!std::getline(std::cin, line)) throw std::runtime_error(&quot;Zakonczono wejscie.&quot;);</span>
+<span class="code-line" data-line="12">        std::istringstream input(line);</span>
+<span class="code-line" data-line="13">        int value;</span>
+<span class="code-line" data-line="14">        char extra;</span>
+<span class="code-line" data-line="15">        if (input &gt;&gt; value &amp;&amp; !(input &gt;&gt; extra) &amp;&amp; value &gt;= minimum &amp;&amp; value &lt;= maximum) return value;</span>
+<span class="code-line" data-line="16">        std::cout &lt;&lt; &quot;Wpisz liczbe od &quot; &lt;&lt; minimum &lt;&lt; &quot; do &quot; &lt;&lt; maximum &lt;&lt; &quot;.\n&quot;;</span>
+<span class="code-line" data-line="17">    }</span>
+<span class="code-line" data-line="18">}</span>
+<span class="code-line" data-line="19"></span>
+<span class="code-line" data-line="20">void waitForEnter(const std::string&amp; prompt) {</span>
+<span class="code-line" data-line="21">    std::cout &lt;&lt; prompt;</span>
+<span class="code-line" data-line="22">    std::string line;</span>
+<span class="code-line" data-line="23">    if (!std::getline(std::cin, line)) throw std::runtime_error(&quot;Zakonczono wejscie.&quot;);</span>
+<span class="code-line" data-line="24">}</span>
+<span class="code-line" data-line="25"></span>
+<span class="code-line" data-line="26">Game::Game(int rows, int columns, std::unique_ptr&lt;Strategy&gt; first, std::unique_ptr&lt;Strategy&gt; second)</span>
+<span class="code-line" data-line="27">    : board_(rows, columns), players_{std::move(first), std::move(second)} {}</span>
+<span class="code-line" data-line="28"></span>
+<span class="code-line" data-line="29">void Game::print() const {</span>
+<span class="code-line" data-line="30">    for (int row = 0; row &lt; board_.rows(); ++row) {</span>
+<span class="code-line" data-line="31">        for (int column = 0; column &lt; board_.columns(); ++column)</span>
+<span class="code-line" data-line="32">            std::cout &lt;&lt; &quot;.XO&quot;[board_.at(row, column)] &lt;&lt; &#x27; &#x27;;</span>
+<span class="code-line" data-line="33">        std::cout &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="34">    }</span>
+<span class="code-line" data-line="35">    for (int column = 1; column &lt;= board_.columns(); ++column) std::cout &lt;&lt; column &lt;&lt; &#x27; &#x27;;</span>
+<span class="code-line" data-line="36">    std::cout &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="37">}</span>
+<span class="code-line" data-line="38"></span>
+<span class="code-line" data-line="39">void Game::run() {</span>
+<span class="code-line" data-line="40">    std::cout &lt;&lt; &quot;Gracz 1: X. Gracz 2: O.\n&quot;;</span>
+<span class="code-line" data-line="41">    while (!board_.result()) {</span>
+<span class="code-line" data-line="42">        print();</span>
+<span class="code-line" data-line="43">        if (players_[0] &amp;&amp; players_[1]) waitForEnter(&quot;Nacisnij Enter, aby AI wykonalo nastepny ruch.\n&quot;);</span>
+<span class="code-line" data-line="44">        int player = board_.currentPlayer();</span>
+<span class="code-line" data-line="45">        auto&amp; strategy = players_[player - 1];</span>
+<span class="code-line" data-line="46">        if (strategy) {</span>
+<span class="code-line" data-line="47">            SearchStats stats;</span>
+<span class="code-line" data-line="48">            auto column = measure(*strategy, board_, stats);</span>
+<span class="code-line" data-line="49">            if (!column || !board_.play(*column)) throw std::logic_error(&quot;AI zwrocilo nielegalny ruch.&quot;);</span>
+<span class="code-line" data-line="50">            std::cout &lt;&lt; &quot;Gracz &quot; &lt;&lt; player &lt;&lt; &quot;: kolumna &quot; &lt;&lt; *column + 1</span>
+<span class="code-line" data-line="51">                      &lt;&lt; &quot;, czas &quot; &lt;&lt; stats.milliseconds &lt;&lt; &quot; ms, stany &quot; &lt;&lt; stats.states &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="52">            if (!stats.complete) std::cout &lt;&lt; &quot;Limit czasu. Wykonano pierwszy legalny ruch awaryjny.\n&quot;;</span>
+<span class="code-line" data-line="53">        } else {</span>
+<span class="code-line" data-line="54">            int column = readInt(&quot;Gracz &quot; + std::to_string(player) + &quot;, wybierz kolumne: &quot;, 1, board_.columns());</span>
+<span class="code-line" data-line="55">            if (!board_.play(column - 1)) std::cout &lt;&lt; &quot;Ta kolumna jest pelna. Wybierz inna.\n&quot;;</span>
+<span class="code-line" data-line="56">        }</span>
+<span class="code-line" data-line="57">    }</span>
+<span class="code-line" data-line="58">    print();</span>
+<span class="code-line" data-line="59">    if (*board_.result() == 0) std::cout &lt;&lt; &quot;Remis.\n&quot;;</span>
+<span class="code-line" data-line="60">    else std::cout &lt;&lt; &quot;Wygrywa gracz &quot; &lt;&lt; *board_.result() &lt;&lt; &quot;.\n&quot;;</span>
+<span class="code-line" data-line="61">}</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Dołącza deklaracje klasy Game oraz funkcji readInt.</td></tr><tr><th scope="row">2</th><td>Udostępnia strumienie konsoli do odczytywania i wypisywania tekstu.</td></tr><tr><th scope="row">3</th><td>Udostępnia strumień pozwalający odczytywać wartości z napisu.</td></tr><tr><th scope="row">4</th><td>Udostępnia wyjątki opisujące błędy wejścia i niepoprawne działanie programu.</td></tr><tr><th scope="row">5</th><td>Udostępnia std::move, potrzebne do przekazania własności inteligentnego wskaźnika.</td></tr><tr><th scope="row">7</th><td>Definiuje funkcję odczytującą liczbę z określonego zakresu.</td></tr><tr><th scope="row">8</th><td>Ponawia pytanie do chwili poprawnej odpowiedzi albo zakończenia wejścia.</td></tr><tr><th scope="row">9</th><td>Wyświetla komunikat przekazany przez wywołującą część programu.</td></tr><tr><th scope="row">10</th><td>Tworzy napis, do którego zostanie wczytany cały wiersz.</td></tr><tr><th scope="row">11</th><td>Odczytuje wiersz; przy końcu wejścia przerywa działanie wyjątkiem.</td></tr><tr><th scope="row">12</th><td>Tworzy strumień służący do sprawdzenia zawartości odczytanego wiersza.</td></tr><tr><th scope="row">13</th><td>Przygotowuje miejsce na liczbę, która zostanie odczytana ze strumienia.</td></tr><tr><th scope="row">14</th><td>Przygotowuje znak służący do wykrycia dodatkowej treści po liczbie.</td></tr><tr><th scope="row">15</th><td>Akceptuje jedną liczbę w zakresie i odrzuca dodatkowe znaki poza białymi znakami.</td></tr><tr><th scope="row">16</th><td>Po błędnej odpowiedzi wypisuje zakres poprawnych wartości i kończy wiersz.</td></tr><tr><th scope="row">17</th><td>Kończy pojedyncze powtórzenie pętli wczytywania liczby.</td></tr><tr><th scope="row">18</th><td>Kończy funkcję readInt; poprawna liczba opuszcza ją wcześniej przez return.</td></tr><tr><th scope="row">20</th><td>Definiuje oczekiwanie na Enter, używane przez grę i główne menu.</td></tr><tr><th scope="row">21</th><td>Wyświetla komunikat wyjaśniający, dlaczego program czeka.</td></tr><tr><th scope="row">22</th><td>Przygotowuje napis na wiersz zakończony klawiszem Enter.</td></tr><tr><th scope="row">23</th><td>Czeka na cały wiersz; brak wejścia zgłasza jako kontrolowany błąd.</td></tr><tr><th scope="row">24</th><td>Kończy funkcję oczekującą na Enter.</td></tr><tr><th scope="row">26</th><td>Definiuje konstruktor, który otrzymuje rozmiar planszy i dwie strategie.</td></tr><tr><th scope="row">27</th><td>Tworzy planszę i przenosi własność obu strategii do tablicy graczy.</td></tr><tr><th scope="row">29</th><td>Definiuje wyświetlanie planszy; const zapewnia brak zmian stanu gry.</td></tr><tr><th scope="row">30</th><td>Przechodzi od najwyższego do najniższego wiersza planszy.</td></tr><tr><th scope="row">31</th><td>Przechodzi przez wszystkie kolumny bieżącego wiersza.</td></tr><tr><th scope="row">32</th><td>Zamienia wartość pola 0, 1 lub 2 na znak kropki, X lub O.</td></tr><tr><th scope="row">33</th><td>Po wyświetleniu wiersza przechodzi do następnej linii konsoli.</td></tr><tr><th scope="row">34</th><td>Kończy wyświetlanie wszystkich wierszy planszy.</td></tr><tr><th scope="row">35</th><td>Wypisuje numery kolumn od 1, wygodniejsze dla osoby grającej.</td></tr><tr><th scope="row">36</th><td>Kończy linię zawierającą numery kolumn.</td></tr><tr><th scope="row">37</th><td>Kończy funkcję wyświetlającą planszę.</td></tr><tr><th scope="row">39</th><td>Definiuje główną pętlę rozgrywki dla wszystkich trybów graczy.</td></tr><tr><th scope="row">40</th><td>Przypomina, że pierwszy gracz używa X, a drugi O.</td></tr><tr><th scope="row">41</th><td>Wykonuje kolejne tury, dopóki wynik opcjonalny pozostaje pusty.</td></tr><tr><th scope="row">42</th><td>Wyświetla aktualną planszę przed ruchem gracza.</td></tr><tr><th scope="row">43</th><td>Gdy obaj gracze są AI, czeka przed każdym ruchem na Enter obserwatora.</td></tr><tr><th scope="row">44</th><td>Zapamiętuje numer gracza, który ma teraz wykonać ruch.</td></tr><tr><th scope="row">45</th><td>Wybiera jego wskaźnik strategii; numer gracza zmienia na indeks tablicy.</td></tr><tr><th scope="row">46</th><td>Przechodzi do obsługi AI, jeśli wybrany wskaźnik wskazuje strategię.</td></tr><tr><th scope="row">47</th><td>Tworzy strukturę przechowującą statystyki bieżącej decyzji.</td></tr><tr><th scope="row">48</th><td>Wywołuje strategię i mierzy czas; wynik opcjonalny zawiera wybraną kolumnę.</td></tr><tr><th scope="row">49</th><td>Przerywa grę wyjątkiem, gdy AI nie zwróci ruchu albo poda nielegalny ruch.</td></tr><tr><th scope="row">50</th><td>Rozpoczyna komunikat o graczu i kolumnie, zmieniając indeks kolumny na numer od 1.</td></tr><tr><th scope="row">51</th><td>Dopisuje zmierzony czas, liczbę rozpatrzonych stanów i koniec wiersza.</td></tr><tr><th scope="row">52</th><td>Wyraźnie informuje, że przekroczenie czasu wymusiło ruch awaryjny.</td></tr><tr><th scope="row">53</th><td>Przechodzi do obsługi człowieka, jeśli wskaźnik strategii jest pusty.</td></tr><tr><th scope="row">54</th><td>Pyta bieżącego gracza o numer kolumny mieszczący się w zakresie planszy.</td></tr><tr><th scope="row">55</th><td>Zmienia numer na indeks od zera i po pełnej kolumnie ponawia turę.</td></tr><tr><th scope="row">56</th><td>Kończy wybór między obsługą AI i człowieka.</td></tr><tr><th scope="row">57</th><td>Kończy pętlę tur, gdy plansza zapisze wynik partii.</td></tr><tr><th scope="row">58</th><td>Wyświetla końcowe ustawienie pionków, włącznie z ostatnim ruchem.</td></tr><tr><th scope="row">59</th><td>Odczytuje istniejący wynik i wypisuje remis, jeśli ma wartość 0.</td></tr><tr><th scope="row">60</th><td>Dla wyniku 1 lub 2 wypisuje numer zwycięskiego gracza.</td></tr><tr><th scope="row">61</th><td>Kończy funkcję prowadzącą partię.</td></tr></tbody></table></details>
+</div></details>
+<details class="source-file" id="file-Experiments-hpp">
+<summary>Experiments.hpp <span class="meta">4 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Experiments.hpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Experiments-hpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Experiments-hpp" data-source-file="Experiments.hpp"><span class="code-line" data-line="1">#pragma once</span>
+<span class="code-line" data-line="2"></span>
+<span class="code-line" data-line="3">void runBenchmarks(int maxDepth = 12);</span>
+<span class="code-line" data-line="4">void runDuels(int pairs = 5);</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Zapobiega wielokrotnemu wczytaniu deklaracji tego nagłówka podczas kompilacji.</td></tr><tr><th scope="row">3</th><td>Deklaruje pomiary Minimaxu; bez argumentu sprawdza głębokości najwyżej do dwunastu.</td></tr><tr><th scope="row">4</th><td>Deklaruje turniej; domyślnie każda konfiguracja rozgrywa pięć par ze zmianą stron.</td></tr></tbody></table></details>
+</div></details>
+<details class="source-file" id="file-Experiments-cpp">
+<summary>Experiments.cpp <span class="meta">175 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/Experiments.cpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-Experiments-cpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-Experiments-cpp" data-source-file="Experiments.cpp"><span class="code-line" data-line="1">#include &quot;Experiments.hpp&quot;</span>
+<span class="code-line" data-line="2">#include &quot;Strategy.hpp&quot;</span>
+<span class="code-line" data-line="3">#include &lt;algorithm&gt;</span>
+<span class="code-line" data-line="4">#include &lt;array&gt;</span>
+<span class="code-line" data-line="5">#include &lt;fstream&gt;</span>
+<span class="code-line" data-line="6">#include &lt;iomanip&gt;</span>
+<span class="code-line" data-line="7">#include &lt;iostream&gt;</span>
+<span class="code-line" data-line="8">#include &lt;stdexcept&gt;</span>
+<span class="code-line" data-line="9">#include &lt;string&gt;</span>
+<span class="code-line" data-line="10">#include &lt;vector&gt;</span>
+<span class="code-line" data-line="11"></span>
+<span class="code-line" data-line="12">namespace {</span>
+<span class="code-line" data-line="13">std::ofstream openReport(const std::string&amp; path, const std::string&amp; title) {</span>
+<span class="code-line" data-line="14">    std::ofstream file(path);</span>
+<span class="code-line" data-line="15">    file.exceptions(std::ios::failbit | std::ios::badbit);</span>
+<span class="code-line" data-line="16">    file &lt;&lt; std::fixed &lt;&lt; std::setprecision(3);</span>
+<span class="code-line" data-line="17">    file &lt;&lt; &quot;[raport]\ntytul = &quot; &lt;&lt; title</span>
+<span class="code-line" data-line="18">         &lt;&lt; &quot;\nformat = Sekcje i nazwane pola w stylu INI\njednostka_czasu = milisekundy\n\n&quot;;</span>
+<span class="code-line" data-line="19">    return file;</span>
+<span class="code-line" data-line="20">}</span>
+<span class="code-line" data-line="21"></span>
+<span class="code-line" data-line="22">std::string strategyName(const std::string&amp; name) {</span>
+<span class="code-line" data-line="23">    if (name == &quot;greedy&quot;) return &quot;Strategia zachlanna&quot;;</span>
+<span class="code-line" data-line="24">    if (name == &quot;alphabeta&quot;) return &quot;Minimax z cieciami Alpha-Beta&quot;;</span>
+<span class="code-line" data-line="25">    if (name == &quot;minimax&quot;) return &quot;Minimax bez ciec&quot;;</span>
+<span class="code-line" data-line="26">    return &quot;Monte Carlo&quot;;</span>
+<span class="code-line" data-line="27">}</span>
+<span class="code-line" data-line="28"></span>
+<span class="code-line" data-line="29">void writeStats(std::ostream&amp; file, const SearchStats&amp; stats, int column) {</span>
+<span class="code-line" data-line="30">    file &lt;&lt; &quot;wybrana_kolumna = &quot; &lt;&lt; column + 1</span>
+<span class="code-line" data-line="31">         &lt;&lt; &quot;\nczas_ms = &quot; &lt;&lt; stats.milliseconds</span>
+<span class="code-line" data-line="32">         &lt;&lt; &quot;\nsprawdzone_stany = &quot; &lt;&lt; stats.states</span>
+<span class="code-line" data-line="33">         &lt;&lt; &quot;\nodciecia_galezi = &quot; &lt;&lt; stats.cutoffs</span>
+<span class="code-line" data-line="34">         &lt;&lt; &quot;\nstatus = &quot; &lt;&lt; (stats.complete ? &quot;ukonczono&quot; : &quot;przerwano_limit_czasu&quot;)</span>
+<span class="code-line" data-line="35">         &lt;&lt; &quot;\nocena = &quot; &lt;&lt; (stats.complete ? std::to_string(stats.score) : &quot;nieustalona&quot;) &lt;&lt; &quot;\n\n&quot;;</span>
+<span class="code-line" data-line="36">}</span>
+<span class="code-line" data-line="37"></span>
+<span class="code-line" data-line="38">Board opening(int rows, int columns, unsigned seed, int plies) {</span>
+<span class="code-line" data-line="39">    Board board(rows, columns);</span>
+<span class="code-line" data-line="40">    std::mt19937 generator(seed);</span>
+<span class="code-line" data-line="41">    for (int i = 0; i &lt; plies; ++i) {</span>
+<span class="code-line" data-line="42">        auto moves = board.legalMoves();</span>
+<span class="code-line" data-line="43">        std::uniform_int_distribution&lt;int&gt; pick(0, static_cast&lt;int&gt;(moves.size()) - 1);</span>
+<span class="code-line" data-line="44">        board.play(moves[pick(generator)]);</span>
+<span class="code-line" data-line="45">    }</span>
+<span class="code-line" data-line="46">    return board;</span>
+<span class="code-line" data-line="47">}</span>
+<span class="code-line" data-line="48">}</span>
+<span class="code-line" data-line="49"></span>
+<span class="code-line" data-line="50">void runBenchmarks(int maxDepth) {</span>
+<span class="code-line" data-line="51">    if (maxDepth &lt; 1 || maxDepth &gt; 12) throw std::invalid_argument(&quot;Glebokosc 1..12.&quot;);</span>
+<span class="code-line" data-line="52">    auto file = openReport(&quot;pomiary_minimax.ini&quot;, &quot;Czas i koszt wyboru ruchu przez Minimax&quot;);</span>
+<span class="code-line" data-line="53">    file &lt;&lt; &quot;opis = Kazda sekcja pomiaru opisuje jeden wybor ruchu.\n&quot;</span>
+<span class="code-line" data-line="54">         &lt;&lt; &quot;powtorzenia = 5\nprog_nieakceptowalnej_mediany_ms = 1000\nlimit_wyszukiwania_ms = 2000\n&quot;</span>
+<span class="code-line" data-line="55">         &lt;&lt; &quot;status_przerwania = Wynik nie opisuje ukonczonego wyszukiwania na zadanej glebokosci.\n&quot;</span>
+<span class="code-line" data-line="56">         &lt;&lt; &quot;jednostka_oceny = Punkty heurystyki Minimax, wygrana ma wartosc okolo miliona.\n\n&quot;;</span>
+<span class="code-line" data-line="57">    int measurement = 0;</span>
+<span class="code-line" data-line="58">    int summaryId = 0;</span>
+<span class="code-line" data-line="59">    for (const auto size : {std::array&lt;int, 2&gt;{6, 7}, std::array&lt;int, 2&gt;{8, 9}}) {</span>
+<span class="code-line" data-line="60">        for (int plies : {0, 6}) {</span>
+<span class="code-line" data-line="61">            std::cout &lt;&lt; &quot;Pomiary: plansza &quot; &lt;&lt; size[0] &lt;&lt; &quot; x &quot; &lt;&lt; size[1] &lt;&lt; &quot;, ruchy otwarcia: &quot; &lt;&lt; plies &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="62">            Board board = opening(size[0], size[1], 2026, plies);</span>
+<span class="code-line" data-line="63">            std::array&lt;bool, 2&gt; stopped{false, false};</span>
+<span class="code-line" data-line="64">            for (int depth = 1; depth &lt;= maxDepth; ++depth) {</span>
+<span class="code-line" data-line="65">                std::array&lt;std::vector&lt;double&gt;, 2&gt; times;</span>
+<span class="code-line" data-line="66">                std::array&lt;bool, 2&gt; complete{true, true};</span>
+<span class="code-line" data-line="67">                for (int repeat = 1; repeat &lt;= 5; ++repeat) {</span>
+<span class="code-line" data-line="68">                    for (bool pruning : {false, true}) {</span>
+<span class="code-line" data-line="69">                        int mode = pruning ? 1 : 0;</span>
+<span class="code-line" data-line="70">                        if (stopped[mode] || !complete[mode]) continue;</span>
+<span class="code-line" data-line="71">                        MinimaxStrategy strategy(depth, pruning);</span>
+<span class="code-line" data-line="72">                        SearchStats stats;</span>
+<span class="code-line" data-line="73">                        auto column = measure(strategy, board, stats);</span>
+<span class="code-line" data-line="74">                        file &lt;&lt; &quot;[pomiar_&quot; &lt;&lt; ++measurement &lt;&lt; &quot;]\nplansza = &quot; &lt;&lt; size[0] &lt;&lt; &quot; x &quot; &lt;&lt; size[1]</span>
+<span class="code-line" data-line="75">                             &lt;&lt; &quot;\npozycja = &quot; &lt;&lt; (plies == 0 ? &quot;Pusta plansza&quot; : &quot;Po szesciu ruchach otwarcia&quot;)</span>
+<span class="code-line" data-line="76">                             &lt;&lt; &quot;\nruchy_otwarcia = &quot; &lt;&lt; plies &lt;&lt; &quot;\nziarno = 2026\nstrategia = &quot;</span>
+<span class="code-line" data-line="77">                             &lt;&lt; strategyName(pruning ? &quot;alphabeta&quot; : &quot;minimax&quot;)</span>
+<span class="code-line" data-line="78">                             &lt;&lt; &quot;\nglebokosc_zadana = &quot; &lt;&lt; depth &lt;&lt; &quot;\npowtorzenie = &quot; &lt;&lt; repeat &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="79">                        writeStats(file, stats, *column);</span>
+<span class="code-line" data-line="80">                        times[mode].push_back(stats.milliseconds);</span>
+<span class="code-line" data-line="81">                        if (!stats.complete) {</span>
+<span class="code-line" data-line="82">                            complete[mode] = false;</span>
+<span class="code-line" data-line="83">                        }</span>
+<span class="code-line" data-line="84">                    }</span>
+<span class="code-line" data-line="85">                }</span>
+<span class="code-line" data-line="86">                for (int mode = 0; mode &lt; 2; ++mode) {</span>
+<span class="code-line" data-line="87">                    if (stopped[mode]) continue;</span>
+<span class="code-line" data-line="88">                    std::sort(times[mode].begin(), times[mode].end());</span>
+<span class="code-line" data-line="89">                    file &lt;&lt; &quot;[podsumowanie_&quot; &lt;&lt; ++summaryId &lt;&lt; &quot;]\nplansza = &quot; &lt;&lt; size[0] &lt;&lt; &quot; x &quot; &lt;&lt; size[1]</span>
+<span class="code-line" data-line="90">                         &lt;&lt; &quot;\nruchy_otwarcia = &quot; &lt;&lt; plies &lt;&lt; &quot;\nstrategia = &quot;</span>
+<span class="code-line" data-line="91">                         &lt;&lt; strategyName(mode == 1 ? &quot;alphabeta&quot; : &quot;minimax&quot;)</span>
+<span class="code-line" data-line="92">                         &lt;&lt; &quot;\nglebokosc_zadana = &quot; &lt;&lt; depth &lt;&lt; &quot;\nliczba_prob = &quot; &lt;&lt; times[mode].size()</span>
+<span class="code-line" data-line="93">                         &lt;&lt; &quot;\nstatus = &quot; &lt;&lt; (complete[mode] ? &quot;ukonczono&quot; : &quot;przerwano_limit_czasu&quot;)</span>
+<span class="code-line" data-line="94">                         &lt;&lt; &quot;\nmediana_czasu_ms = &quot;;</span>
+<span class="code-line" data-line="95">                    if (complete[mode]) file &lt;&lt; times[mode][times[mode].size() / 2];</span>
+<span class="code-line" data-line="96">                    else file &lt;&lt; &quot;nieustalona&quot;;</span>
+<span class="code-line" data-line="97">                    file &lt;&lt; &quot;\n\n&quot;;</span>
+<span class="code-line" data-line="98">                    stopped[mode] = !complete[mode] || times[mode][times[mode].size() / 2] &gt;= 1000;</span>
+<span class="code-line" data-line="99">                }</span>
+<span class="code-line" data-line="100">                if (stopped[0] &amp;&amp; stopped[1]) break;</span>
+<span class="code-line" data-line="101">            }</span>
+<span class="code-line" data-line="102">        }</span>
+<span class="code-line" data-line="103">    }</span>
+<span class="code-line" data-line="104">    file.close();</span>
+<span class="code-line" data-line="105">    std::cout &lt;&lt; &quot;Zapisano pomiary_minimax.ini. Status przerwano_limit_czasu oznacza niepelne obliczenie.\n&quot;;</span>
+<span class="code-line" data-line="106">}</span>
+<span class="code-line" data-line="107"></span>
+<span class="code-line" data-line="108">void runDuels(int pairs) {</span>
+<span class="code-line" data-line="109">    if (pairs &lt; 1 || pairs &gt; 50) throw std::invalid_argument(&quot;Liczba par 1..50.&quot;);</span>
+<span class="code-line" data-line="110">    auto movesFile = openReport(&quot;turniej_ruchy.ini&quot;, &quot;Przebieg partii turnieju AI&quot;);</span>
+<span class="code-line" data-line="111">    auto summary = openReport(&quot;turniej_podsumowanie.ini&quot;, &quot;Wyniki pojedynkow trzech strategii AI&quot;);</span>
+<span class="code-line" data-line="112">    movesFile &lt;&lt; &quot;opis = Partia zawiera otwarcie, kolejne ruchy i wynik. Gracz 1 to X, gracz 2 to O.\n&quot;</span>
+<span class="code-line" data-line="113">              &lt;&lt; &quot;glebokosc_minimax = 3\nsymulacje_monte_carlo_na_kolumne = 30\nruchy_otwarcia = 6\n&quot;</span>
+<span class="code-line" data-line="114">              &lt;&lt; &quot;status_przerwania = Wykonano pierwszy legalny ruch awaryjny.\n&quot;</span>
+<span class="code-line" data-line="115">              &lt;&lt; &quot;jednostka_oceny_zachlannej_i_minimax = Punkty heurystyki\n&quot;</span>
+<span class="code-line" data-line="116">              &lt;&lt; &quot;jednostka_oceny_monte_carlo = Liczba wygranych minus liczba porazek w symulacjach\n\n&quot;;</span>
+<span class="code-line" data-line="117">    summary &lt;&lt; &quot;opis = Kazdy pojedynek obejmuje pary partii ze zmiana stron na tym samym otwarciu.\n&quot;</span>
+<span class="code-line" data-line="118">            &lt;&lt; &quot;uwaga = Ruchy awaryjne trzeba uwzglednic przy interpretacji skutecznosci AI.\n\n&quot;;</span>
+<span class="code-line" data-line="119">    const std::array&lt;std::string, 3&gt; names{&quot;greedy&quot;, &quot;alphabeta&quot;, &quot;montecarlo&quot;};</span>
+<span class="code-line" data-line="120">    int game = 0;</span>
+<span class="code-line" data-line="121">    int matchup = 0;</span>
+<span class="code-line" data-line="122">    for (const auto size : {std::array&lt;int, 2&gt;{6, 7}, std::array&lt;int, 2&gt;{8, 9}}) {</span>
+<span class="code-line" data-line="123">        for (int a = 0; a &lt; 3; ++a) {</span>
+<span class="code-line" data-line="124">            for (int b = a + 1; b &lt; 3; ++b) {</span>
+<span class="code-line" data-line="125">                std::cout &lt;&lt; &quot;Turniej: &quot; &lt;&lt; size[0] &lt;&lt; &quot; x &quot; &lt;&lt; size[1] &lt;&lt; &quot;, &quot;</span>
+<span class="code-line" data-line="126">                          &lt;&lt; strategyName(names[a]) &lt;&lt; &quot; kontra &quot; &lt;&lt; strategyName(names[b]) &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="127">                std::array&lt;int, 3&gt; results{};</span>
+<span class="code-line" data-line="128">                int incomplete = 0;</span>
+<span class="code-line" data-line="129">                for (int pair = 0; pair &lt; pairs; ++pair) {</span>
+<span class="code-line" data-line="130">                    unsigned seed = 2026 + pair;</span>
+<span class="code-line" data-line="131">                    for (int leg = 0; leg &lt; 2; ++leg) {</span>
+<span class="code-line" data-line="132">                        Board board = opening(size[0], size[1], seed, 6);</span>
+<span class="code-line" data-line="133">                        int aPlayer = leg == 0 ? 1 : 2;</span>
+<span class="code-line" data-line="134">                        auto strategyA = makeStrategy(names[a], 3, 30, seed);</span>
+<span class="code-line" data-line="135">                        auto strategyB = makeStrategy(names[b], 3, 30, seed + 10000);</span>
+<span class="code-line" data-line="136">                        movesFile &lt;&lt; &quot;[partia_&quot; &lt;&lt; ++game &lt;&lt; &quot;]\nplansza = &quot; &lt;&lt; size[0] &lt;&lt; &quot; x &quot; &lt;&lt; size[1]</span>
+<span class="code-line" data-line="137">                                  &lt;&lt; &quot;\nstrategia_a = &quot; &lt;&lt; strategyName(names[a]) &lt;&lt; &quot;\nstrategia_b = &quot; &lt;&lt; strategyName(names[b])</span>
+<span class="code-line" data-line="138">                                  &lt;&lt; &quot;\npara = &quot; &lt;&lt; pair + 1 &lt;&lt; &quot;\nspotkanie_w_parze = &quot; &lt;&lt; leg + 1</span>
+<span class="code-line" data-line="139">                                  &lt;&lt; &quot;\ngracz_strategii_a = &quot; &lt;&lt; aPlayer &lt;&lt; &quot;\nziarno_otwarcia = &quot; &lt;&lt; seed</span>
+<span class="code-line" data-line="140">                                  &lt;&lt; &quot;\nziarno_strategii_a = &quot; &lt;&lt; seed &lt;&lt; &quot;\nziarno_strategii_b = &quot; &lt;&lt; seed + 10000 &lt;&lt; &quot;\n\n&quot;;</span>
+<span class="code-line" data-line="141">                        int ply = 6;</span>
+<span class="code-line" data-line="142">                        while (!board.result()) {</span>
+<span class="code-line" data-line="143">                            int player = board.currentPlayer();</span>
+<span class="code-line" data-line="144">                            bool isA = player == aPlayer;</span>
+<span class="code-line" data-line="145">                            Strategy&amp; strategy = isA ? *strategyA : *strategyB;</span>
+<span class="code-line" data-line="146">                            SearchStats stats;</span>
+<span class="code-line" data-line="147">                            auto column = measure(strategy, board, stats);</span>
+<span class="code-line" data-line="148">                            if (!column || !board.play(*column)) throw std::logic_error(&quot;Nielegalny ruch AI.&quot;);</span>
+<span class="code-line" data-line="149">                            ++ply;</span>
+<span class="code-line" data-line="150">                            if (!stats.complete) ++incomplete;</span>
+<span class="code-line" data-line="151">                            movesFile &lt;&lt; &quot;[partia_&quot; &lt;&lt; game &lt;&lt; &quot;.ruch_&quot; &lt;&lt; ply &lt;&lt; &quot;]\ngracz = &quot; &lt;&lt; player</span>
+<span class="code-line" data-line="152">                                      &lt;&lt; &quot;\nstrategia = &quot; &lt;&lt; strategyName(names[isA ? a : b]) &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="153">                            writeStats(movesFile, stats, *column);</span>
+<span class="code-line" data-line="154">                        }</span>
+<span class="code-line" data-line="155">                        int result = *board.result();</span>
+<span class="code-line" data-line="156">                        ++results[result == 0 ? 2 : (result == aPlayer ? 0 : 1)];</span>
+<span class="code-line" data-line="157">                        movesFile &lt;&lt; &quot;[wynik_partii_&quot; &lt;&lt; game &lt;&lt; &quot;]\nrezultat = &quot;</span>
+<span class="code-line" data-line="158">                                  &lt;&lt; (result == 0 ? &quot;Remis&quot; : &quot;Wygrana&quot;) &lt;&lt; &quot;\nzwyciezca = &quot;</span>
+<span class="code-line" data-line="159">                                  &lt;&lt; (result == 0 ? &quot;Brak&quot; : strategyName(names[result == aPlayer ? a : b]))</span>
+<span class="code-line" data-line="160">                                  &lt;&lt; &quot;\nliczba_ruchow_z_otwarciem = &quot; &lt;&lt; ply &lt;&lt; &quot;\n\n&quot;;</span>
+<span class="code-line" data-line="161">                    }</span>
+<span class="code-line" data-line="162">                }</span>
+<span class="code-line" data-line="163">                summary &lt;&lt; &quot;[pojedynek_&quot; &lt;&lt; ++matchup &lt;&lt; &quot;]\nplansza = &quot; &lt;&lt; size[0] &lt;&lt; &quot; x &quot; &lt;&lt; size[1]</span>
+<span class="code-line" data-line="164">                        &lt;&lt; &quot;\nstrategia_a = &quot; &lt;&lt; strategyName(names[a]) &lt;&lt; &quot;\nstrategia_b = &quot; &lt;&lt; strategyName(names[b])</span>
+<span class="code-line" data-line="165">                        &lt;&lt; &quot;\nliczba_par = &quot; &lt;&lt; pairs &lt;&lt; &quot;\nliczba_partii = &quot; &lt;&lt; 2 * pairs</span>
+<span class="code-line" data-line="166">                        &lt;&lt; &quot;\nglebokosc_minimax = 3\nsymulacje_monte_carlo_na_kolumne = 30\nruchy_otwarcia = 6&quot;</span>
+<span class="code-line" data-line="167">                        &lt;&lt; &quot;\nwygrane_a = &quot; &lt;&lt; results[0] &lt;&lt; &quot;\nwygrane_b = &quot; &lt;&lt; results[1]</span>
+<span class="code-line" data-line="168">                        &lt;&lt; &quot;\nremisy = &quot; &lt;&lt; results[2] &lt;&lt; &quot;\nruchy_awaryjne = &quot; &lt;&lt; incomplete &lt;&lt; &quot;\n\n&quot;;</span>
+<span class="code-line" data-line="169">            }</span>
+<span class="code-line" data-line="170">        }</span>
+<span class="code-line" data-line="171">    }</span>
+<span class="code-line" data-line="172">    movesFile.close();</span>
+<span class="code-line" data-line="173">    summary.close();</span>
+<span class="code-line" data-line="174">    std::cout &lt;&lt; &quot;Zapisano turniej_ruchy.ini i turniej_podsumowanie.ini.\n&quot;;</span>
+<span class="code-line" data-line="175">}</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Dołącza deklaracje uruchamiania pomiarów i pojedynków.</td></tr><tr><th scope="row">2</th><td>Udostępnia planszę, strategie i wspólny pomiar ruchu.</td></tr><tr><th scope="row">3</th><td>Udostępnia sortowanie potrzebne do wyznaczenia mediany czasów.</td></tr><tr><th scope="row">4</th><td>Udostępnia tablice o stałej liczbie elementów.</td></tr><tr><th scope="row">5</th><td>Udostępnia strumienie zapisujące raporty do plików.</td></tr><tr><th scope="row">6</th><td>Udostępnia ustawienie stałej liczby miejsc po przecinku.</td></tr><tr><th scope="row">7</th><td>Udostępnia wypisywanie postępu eksperymentów w konsoli.</td></tr><tr><th scope="row">8</th><td>Udostępnia wyjątki dla niepoprawnych ustawień i błędnych ruchów.</td></tr><tr><th scope="row">9</th><td>Udostępnia napisy przechowujące nazwy plików i strategii.</td></tr><tr><th scope="row">10</th><td>Udostępnia listy czasów o zmiennym rozmiarze.</td></tr><tr><th scope="row">12</th><td>Ogranicza widoczność poniższych funkcji pomocniczych do tego pliku.</td></tr><tr><th scope="row">13</th><td>Rozpoczyna otwieranie raportu o podanej ścieżce i tytule.</td></tr><tr><th scope="row">14</th><td>Otwiera plik do zapisu, zastępując jego poprzednią zawartość.</td></tr><tr><th scope="row">15</th><td>Włącza wyjątki przy nieudanym otwarciu albo zapisie pliku.</td></tr><tr><th scope="row">16</th><td>Ustawia zapis czasów z trzema cyframi po kropce dziesiętnej.</td></tr><tr><th scope="row">17</th><td>Rozpoczyna sekcję raportu i zapisuje jego czytelny tytuł.</td></tr><tr><th scope="row">18</th><td>Opisuje układ sekcji oraz jednostkę czasu używaną w raporcie.</td></tr><tr><th scope="row">19</th><td>Zwraca otwarty strumień, przez który zapisujemy dalsze wyniki.</td></tr><tr><th scope="row">20</th><td>Kończy funkcję otwierającą raport.</td></tr><tr><th scope="row">22</th><td>Rozpoczyna zamianę wewnętrznej nazwy strategii na opis dla czytelnika.</td></tr><tr><th scope="row">23</th><td>Dla nazwy greedy zwraca polski opis strategii zachłannej.</td></tr><tr><th scope="row">24</th><td>Dla alphabeta zwraca opis Minimaxu z włączonymi cięciami.</td></tr><tr><th scope="row">25</th><td>Dla minimax zwraca opis wariantu bez cięć.</td></tr><tr><th scope="row">26</th><td>Pozostała używana tutaj nazwa odpowiada strategii Monte Carlo.</td></tr><tr><th scope="row">27</th><td>Kończy funkcję opisującą nazwy strategii.</td></tr><tr><th scope="row">29</th><td>Rozpoczyna wspólny zapis statystyk jednego wybranego ruchu.</td></tr><tr><th scope="row">30</th><td>Zapisuje kolumnę numerowaną od jednego, wygodnie dla czytelnika.</td></tr><tr><th scope="row">31</th><td>Zapisuje czas wyboru ruchu pod nazwą wskazującą milisekundy.</td></tr><tr><th scope="row">32</th><td>Zapisuje liczbę sprawdzonych lub symulowanych stanów gry.</td></tr><tr><th scope="row">33</th><td>Zapisuje liczbę wykonanych odcięć gałęzi Alpha-Beta.</td></tr><tr><th scope="row">34</th><td>Zapisuje słowny status ukończenia albo przerwania wyszukiwania.</td></tr><tr><th scope="row">35</th><td>Zapisuje ocenę tylko po ukończeniu; po przerwaniu wpisuje nieustalona.</td></tr><tr><th scope="row">36</th><td>Kończy wspólny zapis statystyk ruchu.</td></tr><tr><th scope="row">38</th><td>Rozpoczyna tworzenie pozycji po określonej liczbie losowych ruchów.</td></tr><tr><th scope="row">39</th><td>Tworzy pustą planszę o wskazanych wymiarach.</td></tr><tr><th scope="row">40</th><td>Inicjuje generator podanym ziarnem, aby można było odtworzyć otwarcie.</td></tr><tr><th scope="row">41</th><td>Wykonuje tyle ruchów otwarcia, ile wskazuje plies.</td></tr><tr><th scope="row">42</th><td>Pobiera legalne kolumny aktualnie przygotowywanej pozycji.</td></tr><tr><th scope="row">43</th><td>Tworzy równomierne losowanie indeksu na liście legalnych kolumn.</td></tr><tr><th scope="row">44</th><td>Losuje indeks i wykonuje odpowiadający mu ruch.</td></tr><tr><th scope="row">45</th><td>Kończy pętlę ruchów otwarcia.</td></tr><tr><th scope="row">46</th><td>Zwraca kompletną planszę po otwarciu.</td></tr><tr><th scope="row">47</th><td>Kończy funkcję tworzącą pozycję początkową.</td></tr><tr><th scope="row">48</th><td>Kończy obszar lokalnych funkcji pomocniczych.</td></tr><tr><th scope="row">50</th><td>Rozpoczyna pomiary Minimaxu do podanej maksymalnej głębokości.</td></tr><tr><th scope="row">51</th><td>Odrzuca maksymalną głębokość spoza zakresu od jednego do dwunastu.</td></tr><tr><th scope="row">52</th><td>Otwiera czytelny raport pomiary_minimax.ini i nadaje mu tytuł.</td></tr><tr><th scope="row">53</th><td>Wyjaśnia, że jedna sekcja pomiaru odpowiada jednemu wyborowi ruchu.</td></tr><tr><th scope="row">54</th><td>Zapisuje liczbę powtórzeń, próg mediany i limit wyszukiwania.</td></tr><tr><th scope="row">55</th><td>Wyjaśnia, że przerwany pomiar nie jest wynikiem pełnego wyszukiwania.</td></tr><tr><th scope="row">56</th><td>Opisuje jednostkę oceny planszy stosowaną przez Minimax.</td></tr><tr><th scope="row">57</th><td>Zeruje licznik potrzebny do unikalnego numerowania sekcji pomiarów.</td></tr><tr><th scope="row">58</th><td>Zeruje licznik sekcji podsumowania, osobny od liczby pojedynczych pomiarów.</td></tr><tr><th scope="row">59</th><td>Przeprowadza pomiary osobno na planszy klasycznej i powiększonej.</td></tr><tr><th scope="row">60</th><td>Wybiera pustą planszę albo otwarcie po sześciu ruchach.</td></tr><tr><th scope="row">61</th><td>Pokazuje w konsoli, jaką planszę i pozycję program obecnie bada.</td></tr><tr><th scope="row">62</th><td>Przygotowuje powtarzalną pozycję, używając ziarna 2026.</td></tr><tr><th scope="row">63</th><td>Pamięta osobno zatrzymanie wariantu bez cięć i z cięciami.</td></tr><tr><th scope="row">64</th><td>Zwiększa głębokość kolejno od jednego do wskazanego maksimum.</td></tr><tr><th scope="row">65</th><td>Tworzy osobne listy czasów dla obu wariantów Minimaxu.</td></tr><tr><th scope="row">66</th><td>Początkowo uznaje oba warianty za nieprzerwane na tej głębokości.</td></tr><tr><th scope="row">67</th><td>Planuje pięć powtórzeń każdego aktywnego wariantu.</td></tr><tr><th scope="row">68</th><td>Przeplata pomiary wariantu bez cięć i wariantu Alpha-Beta.</td></tr><tr><th scope="row">69</th><td>Zamienia ustawienie cięć na indeks zero albo jeden.</td></tr><tr><th scope="row">70</th><td>Pomija wariant zatrzymany wcześniej lub przerwany w tej serii.</td></tr><tr><th scope="row">71</th><td>Tworzy świeży obiekt Minimaxu z bieżącą głębokością i ustawieniem cięć.</td></tr><tr><th scope="row">72</th><td>Przygotowuje miejsce na statystyki pojedynczego wyszukiwania.</td></tr><tr><th scope="row">73</th><td>Wybiera ruch i mierzy czas na niezmienianej pozycji wejściowej.</td></tr><tr><th scope="row">74</th><td>Tworzy kolejną sekcję pomiaru i zapisuje czytelny rozmiar planszy.</td></tr><tr><th scope="row">75</th><td>Zapisuje słowny opis pustej planszy albo pozycji po otwarciu.</td></tr><tr><th scope="row">76</th><td>Zapisuje długość otwarcia, ziarno i początek opisu strategii.</td></tr><tr><th scope="row">77</th><td>Dopisuje pełną nazwę odpowiedniego wariantu Minimaxu.</td></tr><tr><th scope="row">78</th><td>Zapisuje żądaną głębokość i numer powtórzenia pomiaru.</td></tr><tr><th scope="row">79</th><td>Dopisuje wspólne statystyki, wynikowy ruch i status ukończenia.</td></tr><tr><th scope="row">80</th><td>Dodaje zmierzony czas do listy właściwego wariantu.</td></tr><tr><th scope="row">81</th><td>Sprawdza, czy bieżące wyszukiwanie zostało przerwane limitem czasu.</td></tr><tr><th scope="row">82</th><td>Oznacza nieukończenie i wstrzymuje kolejne powtórzenia tego wariantu.</td></tr><tr><th scope="row">83</th><td>Kończy obsługę przerwanego wyszukiwania.</td></tr><tr><th scope="row">84</th><td>Kończy pomiary obu wariantów w jednym powtórzeniu.</td></tr><tr><th scope="row">85</th><td>Kończy serię powtórzeń na tej głębokości.</td></tr><tr><th scope="row">86</th><td>Osobno ustala, czy każdy wariant powinien zakończyć zwiększanie głębokości.</td></tr><tr><th scope="row">87</th><td>Pomija wariant, który został zatrzymany na wcześniejszej głębokości.</td></tr><tr><th scope="row">88</th><td>Sortuje czasy rosnąco, aby można było odczytać medianę.</td></tr><tr><th scope="row">89</th><td>Tworzy kolejną sekcję podsumowania prób i zapisuje rozmiar planszy.</td></tr><tr><th scope="row">90</th><td>Zapisuje długość otwarcia i rozpoczyna pole opisujące wariant strategii.</td></tr><tr><th scope="row">91</th><td>Dopisuje pełną nazwę wariantu z cięciami albo bez cięć.</td></tr><tr><th scope="row">92</th><td>Zapisuje badaną głębokość i liczbę rzeczywiście wykonanych prób.</td></tr><tr><th scope="row">93</th><td>Zapisuje status ukończenia serii albo wystąpienia przerwanego wyszukiwania.</td></tr><tr><th scope="row">94</th><td>Rozpoczyna pole mediany czasu z jednostką milisekund.</td></tr><tr><th scope="row">95</th><td>Po ukończonej serii zapisuje środkowy z pięciu uporządkowanych czasów.</td></tr><tr><th scope="row">96</th><td>Przy przerwanej serii nie podaje mediany pełnego wyszukiwania.</td></tr><tr><th scope="row">97</th><td>Kończy wiersz mediany i oddziela podsumowanie pustą linią.</td></tr><tr><th scope="row">98</th><td>Zatrzymuje wariant po przerwaniu lub medianie co najmniej 1000 milisekund.</td></tr><tr><th scope="row">99</th><td>Kończy ustalanie zatrzymania obu wariantów.</td></tr><tr><th scope="row">100</th><td>Kończy badanie tej pozycji, jeśli oba warianty zostały zatrzymane.</td></tr><tr><th scope="row">101</th><td>Kończy pętlę kolejnych głębokości.</td></tr><tr><th scope="row">102</th><td>Kończy badanie pustej planszy i otwarcia.</td></tr><tr><th scope="row">103</th><td>Kończy pomiary obu rozmiarów planszy.</td></tr><tr><th scope="row">104</th><td>Zamyka plik i umożliwia wykrycie błędu końcowego zapisu.</td></tr><tr><th scope="row">105</th><td>Podaje nazwę raportu i znaczenie statusu przerwania.</td></tr><tr><th scope="row">106</th><td>Kończy funkcję pomiarową.</td></tr><tr><th scope="row">108</th><td>Rozpoczyna turniej trzech strategii z podaną liczbą par spotkań.</td></tr><tr><th scope="row">109</th><td>Odrzuca liczbę par mniejszą od jednego albo większą od pięćdziesięciu.</td></tr><tr><th scope="row">110</th><td>Otwiera raport z kolejnymi partiami i ruchami turnieju.</td></tr><tr><th scope="row">111</th><td>Otwiera oddzielny raport podsumowujący wyniki pojedynków.</td></tr><tr><th scope="row">112</th><td>Opisuje zawartość raportu ruchów i przypisanie numerów do pionków.</td></tr><tr><th scope="row">113</th><td>Zapisuje głębokość Minimaxu, liczbę symulacji i długość otwarcia.</td></tr><tr><th scope="row">114</th><td>Wyjaśnia, że po przerwaniu obliczeń program wykonuje ruch awaryjny.</td></tr><tr><th scope="row">115</th><td>Opisuje skalę ocen strategii zachłannej i Minimaxu.</td></tr><tr><th scope="row">116</th><td>Opisuje inną skalę oceny Monte Carlo, wygrane minus porażki symulacji.</td></tr><tr><th scope="row">117</th><td>Wyjaśnia, że podsumowanie obejmuje pary ze zmianą stron.</td></tr><tr><th scope="row">118</th><td>Przypomina o wpływie ruchów awaryjnych na interpretację wyników.</td></tr><tr><th scope="row">119</th><td>Ustala trzy odrębne metody używane w turnieju.</td></tr><tr><th scope="row">120</th><td>Zeruje licznik wszystkich partii, potrzebny do unikalnych sekcji raportu.</td></tr><tr><th scope="row">121</th><td>Zeruje licznik zestawów strategii w podsumowaniu.</td></tr><tr><th scope="row">122</th><td>Rozgrywa turnieje osobno na obu rozmiarach planszy.</td></tr><tr><th scope="row">123</th><td>Wybiera indeks pierwszej strategii badanego zestawu.</td></tr><tr><th scope="row">124</th><td>Dobiera drugą strategię, unikając powtórzonych zestawów.</td></tr><tr><th scope="row">125</th><td>Rozpoczyna komunikat postępu, podając bieżący rozmiar planszy.</td></tr><tr><th scope="row">126</th><td>Dopisuje czytelne nazwy dwóch porównywanych strategii.</td></tr><tr><th scope="row">127</th><td>Zeruje liczniki wygranych A, wygranych B i remisów.</td></tr><tr><th scope="row">128</th><td>Zeruje licznik ruchów awaryjnych dla tego zestawu.</td></tr><tr><th scope="row">129</th><td>Przechodzi przez kolejne pary partii danego zestawu.</td></tr><tr><th scope="row">130</th><td>Wyznacza powtarzalne ziarno dla bieżącej pary.</td></tr><tr><th scope="row">131</th><td>Rozgrywa dwie partie na tym samym otwarciu ze zmianą stron.</td></tr><tr><th scope="row">132</th><td>Odtwarza planszę po sześciu losowych ruchach otwarcia.</td></tr><tr><th scope="row">133</th><td>Przypisuje strategię A do gracza pierwszego albo drugiego.</td></tr><tr><th scope="row">134</th><td>Tworzy strategię A z głębokością trzy, trzydziestoma symulacjami i ziarnem.</td></tr><tr><th scope="row">135</th><td>Tworzy strategię B z tymi ustawieniami i ziarnem powiększonym o 10000.</td></tr><tr><th scope="row">136</th><td>Tworzy unikalną sekcję partii i zapisuje rozmiar jej planszy.</td></tr><tr><th scope="row">137</th><td>Zapisuje pełne nazwy strategii oznaczonych jako A i B.</td></tr><tr><th scope="row">138</th><td>Zapisuje numer pary i spotkania, czytelnie od jednego.</td></tr><tr><th scope="row">139</th><td>Zapisuje gracza sterowanego przez A oraz ziarno otwarcia.</td></tr><tr><th scope="row">140</th><td>Zapisuje oddzielne ziarna obu strategii, niezależne od zamiany stron.</td></tr><tr><th scope="row">141</th><td>Zaczyna numerowanie ruchów od sześciu już wykonanych ruchów otwarcia.</td></tr><tr><th scope="row">142</th><td>Kontynuuje partię, dopóki plansza nie ma wyniku.</td></tr><tr><th scope="row">143</th><td>Odczytuje numer gracza, który ma teraz wykonać ruch.</td></tr><tr><th scope="row">144</th><td>Sprawdza, czy aktualnego gracza obsługuje strategia A.</td></tr><tr><th scope="row">145</th><td>Wybiera referencję do odpowiedniej strategii bez kopiowania obiektu.</td></tr><tr><th scope="row">146</th><td>Przygotowuje statystyki kolejnego ruchu.</td></tr><tr><th scope="row">147</th><td>Uruchamia wybraną strategię i mierzy cały wybór kolumny.</td></tr><tr><th scope="row">148</th><td>Wymaga istniejącego legalnego ruchu, a błąd AI zgłasza wyjątkiem.</td></tr><tr><th scope="row">149</th><td>Zwiększa liczbę rzeczywiście wykonanych ruchów partii.</td></tr><tr><th scope="row">150</th><td>Zlicza użycie ruchu awaryjnego po nieukończonym wyszukiwaniu.</td></tr><tr><th scope="row">151</th><td>Tworzy sekcję konkretnego ruchu partii i zapisuje numer gracza.</td></tr><tr><th scope="row">152</th><td>Zapisuje pełną nazwę strategii, która wybrała ten ruch.</td></tr><tr><th scope="row">153</th><td>Dopisuje kolumnę, czas, liczniki, status i ocenę wybranego ruchu.</td></tr><tr><th scope="row">154</th><td>Kończy wykonywanie ruchów po zakończeniu partii.</td></tr><tr><th scope="row">155</th><td>Odczytuje istniejący wynik zakończonej partii.</td></tr><tr><th scope="row">156</th><td>Zwiększa licznik remisu lub zwycięstwa A albo B, uwzględniając strony.</td></tr><tr><th scope="row">157</th><td>Rozpoczyna osobną sekcję wyniku tej partii.</td></tr><tr><th scope="row">158</th><td>Zapisuje słownie remis albo wygraną i początek pola zwycięzcy.</td></tr><tr><th scope="row">159</th><td>Podaje nazwę zwycięskiej strategii, a dla remisu wpisuje Brak.</td></tr><tr><th scope="row">160</th><td>Zapisuje całkowitą liczbę ruchów, łącznie z otwarciem.</td></tr><tr><th scope="row">161</th><td>Kończy dwa spotkania jednej pary.</td></tr><tr><th scope="row">162</th><td>Kończy wszystkie pary danego zestawu strategii.</td></tr><tr><th scope="row">163</th><td>Tworzy kolejną sekcję podsumowania i zapisuje rozmiar planszy.</td></tr><tr><th scope="row">164</th><td>Zapisuje pełne nazwy porównywanych strategii A i B.</td></tr><tr><th scope="row">165</th><td>Zapisuje liczbę par i dwukrotnie większą liczbę partii.</td></tr><tr><th scope="row">166</th><td>Zapisuje ustawienia metod i liczbę ruchów otwarcia.</td></tr><tr><th scope="row">167</th><td>Zapisuje oddzielnie wygrane strategii A i strategii B.</td></tr><tr><th scope="row">168</th><td>Dopisuje liczbę remisów i ruchów awaryjnych danego zestawu.</td></tr><tr><th scope="row">169</th><td>Kończy dobieranie drugiej strategii do zestawu.</td></tr><tr><th scope="row">170</th><td>Kończy dobieranie pierwszej strategii do zestawu.</td></tr><tr><th scope="row">171</th><td>Kończy turnieje na obu rozmiarach planszy.</td></tr><tr><th scope="row">172</th><td>Zamyka raport ruchów i sprawdza końcowy zapis.</td></tr><tr><th scope="row">173</th><td>Zamyka raport wyników pojedynków.</td></tr><tr><th scope="row">174</th><td>Potwierdza nazwy dwóch zapisanych raportów turnieju.</td></tr><tr><th scope="row">175</th><td>Kończy funkcję turnieju AI.</td></tr></tbody></table></details>
+</div></details>
+<details class="source-file" id="file-main-cpp">
+<summary>main.cpp <span class="meta">44 linii</span></summary>
+<div class="file-content"><p>Utwórz <code>src/main.cpp</code> i wklej całą zawartość. Numeracja służy czytaniu i nie jest kopiowana.</p>
+<button type="button" data-copy="code-main-cpp">Kopiuj cały plik</button><span class="copy-status" role="status" aria-live="polite"></span>
+<pre class="source"><code id="code-main-cpp" data-source-file="main.cpp"><span class="code-line" data-line="1">#include &quot;Experiments.hpp&quot;</span>
+<span class="code-line" data-line="2">#include &quot;Game.hpp&quot;</span>
+<span class="code-line" data-line="3">#include &lt;exception&gt;</span>
+<span class="code-line" data-line="4">#include &lt;iostream&gt;</span>
+<span class="code-line" data-line="5">#include &lt;utility&gt;</span>
+<span class="code-line" data-line="6"></span>
+<span class="code-line" data-line="7">namespace {</span>
+<span class="code-line" data-line="8">std::unique_ptr&lt;Strategy&gt; selectPlayer(int player) {</span>
+<span class="code-line" data-line="9">    std::cout &lt;&lt; &quot;Gracz &quot; &lt;&lt; player &lt;&lt; &quot;: 0 czlowiek, 1 greedy, 2 minimax, 3 alphabeta, 4 montecarlo\n&quot;;</span>
+<span class="code-line" data-line="10">    int choice = readInt(&quot;Wybor: &quot;, 0, 4);</span>
+<span class="code-line" data-line="11">    if (choice == 0) return nullptr;</span>
+<span class="code-line" data-line="12">    int depth = choice == 2 || choice == 3 ? readInt(&quot;Glebokosc 1..12: &quot;, 1, 12) : 3;</span>
+<span class="code-line" data-line="13">    int simulations = choice == 4 ? readInt(&quot;Symulacje na ruch 1..1000: &quot;, 1, 1000) : 30;</span>
+<span class="code-line" data-line="14">    const std::string names[]{&quot;&quot;, &quot;greedy&quot;, &quot;minimax&quot;, &quot;alphabeta&quot;, &quot;montecarlo&quot;};</span>
+<span class="code-line" data-line="15">    return makeStrategy(names[choice], depth, simulations, 2026 + player);</span>
+<span class="code-line" data-line="16">}</span>
+<span class="code-line" data-line="17">}</span>
+<span class="code-line" data-line="18"></span>
+<span class="code-line" data-line="19">int main() {</span>
+<span class="code-line" data-line="20">    try {</span>
+<span class="code-line" data-line="21">        while (true) {</span>
+<span class="code-line" data-line="22">            std::cout &lt;&lt; &quot;1 gra, 2 pomiary Minimax, 3 turniej AI, 0 wyjscie\n&quot;;</span>
+<span class="code-line" data-line="23">            int mode = readInt(&quot;Wybor: &quot;, 0, 3);</span>
+<span class="code-line" data-line="24">            if (mode == 0) return 0;</span>
+<span class="code-line" data-line="25">            if (mode == 2) {</span>
+<span class="code-line" data-line="26">                std::cout &lt;&lt; &quot;Plik pomiary_minimax.ini w biezacym katalogu zostanie zastapiony.\n&quot;;</span>
+<span class="code-line" data-line="27">                runBenchmarks(readInt(&quot;Maksymalna glebokosc 1..12: &quot;, 1, 12));</span>
+<span class="code-line" data-line="28">            } else if (mode == 3) {</span>
+<span class="code-line" data-line="29">                std::cout &lt;&lt; &quot;Pliki turniej_ruchy.ini i turniej_podsumowanie.ini zostana zastapione.\n&quot;;</span>
+<span class="code-line" data-line="30">                runDuels(readInt(&quot;Liczba par na zestaw 1..50: &quot;, 1, 50));</span>
+<span class="code-line" data-line="31">            } else {</span>
+<span class="code-line" data-line="32">                int size = readInt(&quot;Plansza: 1 dla 6x7, 2 dla 8x9: &quot;, 1, 2);</span>
+<span class="code-line" data-line="33">                auto first = selectPlayer(1);</span>
+<span class="code-line" data-line="34">                auto second = selectPlayer(2);</span>
+<span class="code-line" data-line="35">                Game game(size == 1 ? 6 : 8, size == 1 ? 7 : 9, std::move(first), std::move(second));</span>
+<span class="code-line" data-line="36">                game.run();</span>
+<span class="code-line" data-line="37">            }</span>
+<span class="code-line" data-line="38">            waitForEnter(&quot;\nNacisnij Enter, aby wrocic do menu.\n&quot;);</span>
+<span class="code-line" data-line="39">        }</span>
+<span class="code-line" data-line="40">    } catch (const std::exception&amp; error) {</span>
+<span class="code-line" data-line="41">        std::cerr &lt;&lt; &quot;Blad: &quot; &lt;&lt; error.what() &lt;&lt; &#x27;\n&#x27;;</span>
+<span class="code-line" data-line="42">        return 1;</span>
+<span class="code-line" data-line="43">    }</span>
+<span class="code-line" data-line="44">}</span>
+</code></pre>
+<details class="explanations"><summary>Objaśnienia każdej niepustej linii</summary>
+<table><thead><tr><th>Linia</th><th>Co robi</th></tr></thead><tbody><tr><th scope="row">1</th><td>Udostępnia uruchamianie pomiarów oraz turnieju strategii AI.</td></tr><tr><th scope="row">2</th><td>Udostępnia klasę Game, wczytywanie liczb i dostępne strategie.</td></tr><tr><th scope="row">3</th><td>Udostępnia wspólny typ wyjątków przechwytywanych na końcu programu.</td></tr><tr><th scope="row">4</th><td>Udostępnia strumienie wypisujące informacje i błędy w konsoli.</td></tr><tr><th scope="row">5</th><td>Udostępnia std::move do przekazywania własności strategii do gry.</td></tr><tr><th scope="row">7</th><td>Rozpoczyna anonimową przestrzeń nazw; jej funkcje są lokalne dla tego pliku.</td></tr><tr><th scope="row">8</th><td>Definiuje wybór sterowania graczem; zwraca własność strategii albo pusty wskaźnik.</td></tr><tr><th scope="row">9</th><td>Wyświetla numer gracza i przypisane numery możliwych sposobów sterowania.</td></tr><tr><th scope="row">10</th><td>Wczytuje poprawny numer jednej z pięciu dostępnych opcji.</td></tr><tr><th scope="row">11</th><td>Dla człowieka zwraca pusty wskaźnik, bo nie potrzebuje on obiektu AI.</td></tr><tr><th scope="row">12</th><td>Pyta o głębokość tylko dla Minimax; pozostałym opcjom przekazuje nieużywaną wartość 3.</td></tr><tr><th scope="row">13</th><td>Pyta o liczbę symulacji tylko dla Monte Carlo; innym przekazuje nieużywaną wartość 30.</td></tr><tr><th scope="row">14</th><td>Mapuje numery menu na nazwy rozpoznawane przez funkcję tworzącą strategie.</td></tr><tr><th scope="row">15</th><td>Tworzy wybraną strategię z ustawieniami i stałym ziarnem zależnym od gracza.</td></tr><tr><th scope="row">16</th><td>Kończy funkcję wyboru sterowania jednym graczem.</td></tr><tr><th scope="row">17</th><td>Kończy anonimową przestrzeń nazw z lokalną funkcją pomocniczą.</td></tr><tr><th scope="row">19</th><td>Rozpoczyna main, czyli funkcję uruchamianą przy starcie programu.</td></tr><tr><th scope="row">20</th><td>Rozpoczyna fragment, którego wyjątki przechwyci wspólna obsługa błędów.</td></tr><tr><th scope="row">21</th><td>Powtarza menu po każdej grze lub badaniu, dopóki użytkownik nie wybierze wyjścia.</td></tr><tr><th scope="row">22</th><td>Wyświetla cztery główne opcje działania programu.</td></tr><tr><th scope="row">23</th><td>Wczytuje numer trybu i odrzuca wartości spoza menu.</td></tr><tr><th scope="row">24</th><td>Kończy program poprawnie, jeśli użytkownik wybrał wyjście.</td></tr><tr><th scope="row">25</th><td>Wybiera pomiary Minimax, gdy numer trybu wynosi 2.</td></tr><tr><th scope="row">26</th><td>Informuje o zastąpieniu wcześniejszego tekstowego raportu pomiarów INI.</td></tr><tr><th scope="row">27</th><td>Wczytuje maksymalną głębokość i uruchamia automatyczne pomiary.</td></tr><tr><th scope="row">28</th><td>Wybiera turniej strategii, gdy numer trybu wynosi 3.</td></tr><tr><th scope="row">29</th><td>Informuje o zastąpieniu dwóch wcześniejszych raportów INI z turnieju.</td></tr><tr><th scope="row">30</th><td>Wczytuje liczbę par partii i uruchamia turniej.</td></tr><tr><th scope="row">31</th><td>Dla pozostałego trybu 1 rozpoczyna przygotowanie zwykłej rozgrywki.</td></tr><tr><th scope="row">32</th><td>Pyta o jeden z dwóch rozmiarów planszy dostępnych w menu.</td></tr><tr><th scope="row">33</th><td>Wybiera sterowanie graczem 1 i odbiera jego strategię.</td></tr><tr><th scope="row">34</th><td>Wybiera sterowanie graczem 2 i odbiera jego strategię.</td></tr><tr><th scope="row">35</th><td>Tworzy grę o wybranym rozmiarze i przenosi do niej własność strategii.</td></tr><tr><th scope="row">36</th><td>Uruchamia partię ze skonfigurowanymi graczami i planszą.</td></tr><tr><th scope="row">37</th><td>Kończy wybór trybu wykonywanego programu.</td></tr><tr><th scope="row">38</th><td>Pozostawia wynik na ekranie i czeka na Enter przed powrotem do menu.</td></tr><tr><th scope="row">39</th><td>Kończy jedno wykonanie pętli menu; następne znów pyta o tryb.</td></tr><tr><th scope="row">40</th><td>Przechwytuje wyjątek jako stałą referencję, bez kopiowania obiektu błędu.</td></tr><tr><th scope="row">41</th><td>Wypisuje opis wyjątku do strumienia błędów i kończy wiersz.</td></tr><tr><th scope="row">42</th><td>Kończy program kodem 1, oznaczającym niepowodzenie.</td></tr><tr><th scope="row">43</th><td>Kończy wspólną obsługę wyjątków programu.</td></tr><tr><th scope="row">44</th><td>Kończy main; dojście tutaj oznacza poprawne zakończenie z kodem 0.</td></tr></tbody></table></details>
+</div></details>
+<pre class="command">g++ -std=c++17 -O2 -Wall -Wextra -Wpedantic Board.cpp Strategy.cpp Game.cpp Experiments.cpp main.cpp -o connect4.exe
+.\connect4.exe</pre>
+<p>To polecenia dla PowerShell na Windows. Na Linux lub macOS z kompatybilnym kompilatorem można nadać plikowi nazwę <code>connect4</code> i uruchomić <code>./connect4</code>. Te platformy nie zostały sprawdzone w tej sesji. <code>-O2</code> włącza optymalizacje kompilatora. Wszystkie porównywane metody kompilujcie z tymi samymi ustawieniami.</p>
+<details><summary>Kontrola działania menu i rozgrywki</summary>
+<ol>
+<li>Wybierzcie <code>1 gra</code>, planszę klasyczną i dwukrotnie <code>0 czlowiek</code>. Wpiszcie kolumny <code>1, 7, 2, 7, 3, 6, 4</code>. Gracz 1 powinien wygrać poziomo.</li>
+<li>Rozegrajcie partię człowiek kontra zachłanna AI. Spróbujcie podać litery, kolumnę spoza zakresu i pełną kolumnę. Błędne wejście powinno pozwolić na ponowny wybór.</li>
+<li>Ustawcie AI dla obu graczy, np. Alpha-Beta o głębokości 3 i Monte Carlo po 30 symulacji na kolumnę. Przed każdym ruchem naciśnijcie Enter. Powtórzcie na większej planszy. Wynik powinien pozostać na ekranie do ponownego naciśnięcia Enter.</li>
+</ol>
+</details>
+<h3>Wykonajcie pomiary czasu i liczby stanów</h3>
+<p>Uruchomcie program, wybierzcie <code>2</code> i maksymalną głębokość <code>12</code>. Moduł bada głębokości od 1 do limitu, w tym wymagane 1 i 3. Dla obu plansz używa pustej pozycji i pozycji po sześciu losowych ruchach z ziarnem 2026. Ziarno ustala przebieg losowania. Każdy wariant ma pięć powtórzeń, naprzemiennie bez cięć i z cięciami.</p>
+<p>Po osiągnięciu mediany 1000 ms albo przerwaniu obliczeń moduł kończy zwiększanie głębokości dla tego wariantu i pozycji. Przy przerwaniu pozostaje od jednej do pięciu prób. Pozostały wariant może badać następne głębokości. Zapis trafia do <code>pomiary_minimax.ini</code> w katalogu uruchomienia, zastępując poprzedni plik o tej nazwie.</p>
+<p>Raporty są zwykłym tekstem w stylu INI, podobnym do konfiguracji wielu programów w Linuksie. Otwórzcie je w edytorze tekstu. Nazwa w nawiasach, np. <code>[pomiar_1]</code>, rozpoczyna sekcję. Każde pole ma nazwę i wartość, np. <code>strategia = Minimax bez ciec</code>. Nie trzeba dopasowywać liczb do osobnej linii nagłówka.</p>
+<p>W <code>pomiary_minimax.ini</code> sekcje <code>[pomiar_N]</code> opisują pojedyncze próby, a <code>[podsumowanie_N]</code> podają gotową medianę dla danej pozycji, metody i głębokości. Pole <code>sprawdzone_stany</code> liczy stan początkowy oraz każdy odwiedzony lub symulowany stan po ruchu. Ta sama sytuacja osiągnięta inną drogą jest liczona ponownie. <code>odciecia_galezi</code> liczy odcięcia, a <code>czas_ms</code> podaje czas całego wyboru ruchu w milisekundach.</p>
+<p><code>status = ukonczono</code> oznacza ukończone obliczenie. <code>status = przerwano_limit_czasu</code> oznacza przerwanie, więc <code>glebokosc_zadana</code> nie jest głębokością ukończoną. Ocena i mediana przerwanej serii mają wartość <code>nieustalona</code>.</p>
+<h3>Porównajcie skuteczność trzech AI</h3>
+<p>Wybierzcie <code>3</code> i <code>5</code> par. Dla każdej planszy i każdej pary metod powstanie dziesięć partii, łącznie 60. Minimax używa cięć i głębokości 3, a Monte Carlo 30 symulacji na kolumnę. Zmianę tych parametrów wykonuje się w <code>runDuels</code>, we wszystkich wywołaniach i odpowiadających im polach raportu. Wersja podstawowa nie dodaje rozbudowanej konfiguracji.</p>
+<p>Każda para partii zaczyna się od tej samej pozycji po sześciu losowych ruchach, po czym strategie zamieniają strony X i O. Są to partie z ustalonych otwarć, a nie od pustej planszy. Kolejne pary mają ziarna 2026, 2027 i następne. Raport nazywa je wprost <code>ziarno_otwarcia</code>, <code>ziarno_strategii_a</code> i <code>ziarno_strategii_b</code>. Strategia A otrzymuje ziarno otwarcia, a B ziarno powiększone o 10 000, niezależnie od zamiany stron.</p>
+<p>Zacznijcie od krótszego <code>turniej_podsumowanie.ini</code>. Każda sekcja <code>[pojedynek_N]</code> podaje planszę, pełne nazwy strategii, liczbę partii, wygrane obu stron, remisy i ruchy awaryjne. Szczegóły są w <code>turniej_ruchy.ini</code>. Sekcja <code>[partia_N]</code> opisuje ustawienia, <code>[partia_N.ruch_M]</code> konkretny ruch, a <code>[wynik_partii_N]</code> zwycięzcę albo remis. Pola głębokości i liczby symulacji opisują ustawienia zestawu. Zachłanna ignoruje oba, a pozostałe metody używają właściwego dla siebie. Pliki są zastępowane przy kolejnym turnieju.</p>
+<details><summary>Jak opracować wyniki bez mylących porównań</summary>
+<ol>
+<li>Zapiszcie procesor, system, wersję kompilatora i polecenie kompilacji. Ograniczcie inne obciążenie komputera. Powtarzalność losowania dotyczy tego samego programu i biblioteki C++. Czasy nie będą identyczne.</li>
+<li>Grupujcie wyniki według rozmiaru, pozycji, głębokości i wariantu cięć. Medianę pięciu ukończonych prób odczytajcie z <code>mediana_czasu_ms</code> w sekcji podsumowania. Minimum i maksimum odczytajcie z prób tej samej konfiguracji.</li>
+<li>Porównujcie cięcia na tej samej pozycji i głębokości. Ukończone wyszukiwania powinny dawać ten sam ruch i ocenę. Pokażcie czas i liczbę stanów. Sam krótki czas bywa podatny na zakłócenia.</li>
+<li>Nie włączajcie przerwanych prób do mediany pełnych wyszukiwań. W osobnej kolumnie zapiszcie „przerwano przy limicie 2000 ms”. Ruch awaryjny nie dowodzi siły Minimaxu na żądanej głębokości.</li>
+<li>W turnieju sprawdźcie, że <code>wygrane_a</code> + <code>wygrane_b</code> + <code>remisy</code> wynoszą <code>liczba_partii</code>. Jeżeli <code>ruchy_awaryjne</code> jest dodatnie, wyniki obejmują ruchy awaryjne. Powtórzcie badanie z mniejszą głębokością albo jawnie opiszcie ten warunek.</li>
+<li>Przedstawcie wykres czasu względem głębokości, wykres liczby stanów i tabelę wyników pojedynków. Większa plansza ma więcej pól oraz możliwych ruchów, więc wynik nie izoluje wpływu samej liczby kolumn. Dwa otwarcia i pięć par nie opisują wszystkich sytuacji gry.</li>
+</ol>
+</details>
+<h3>Złóżcie sprawozdanie</h3>
+<p>Użyjcie sześciu krótkich części. Opiszcie cel i modyfikację zasad, model <code>Board</code>, trzy strategie i heurystykę, oszacowania kosztu, własne pomiary z wykresami oraz wnioski. Dodajcie podział pracy. Do wniosków wpiszcie zmierzoną granicę dla danego komputera, wpływ cięć i wynik pojedynków. Wyjaśnijcie zastosowanie <code>unique_ptr</code>, <code>optional</code> i STL na konkretnych funkcjach.</p>
+<p class="checkpoint">Gotowe, gdy działają trzy tryby, testy przechodzą, raporty INI zawierają dane z Waszego komputera, a każdy wniosek odwołuje się do pomiaru. Pomiary wykonane przy przygotowaniu przewodnika służą sprawdzeniu kodu. Nie zastępują Waszych badań.</p>
+</section>
+
+<section id="zadanie-6">
+<h2>Zadanie 6. Przygotujcie pokaz i oddajcie materiały</h2>
+<ol>
+<li>Pokażcie jedną partię człowiek kontra człowiek, wybór AI i większą planszę. Nie musicie czekać na pełny turniej podczas prezentacji. Przygotujcie wcześniej raporty i wykresy.</li>
+<li>Osoba A omawia stan planszy i przebieg ruchu. Osoba B pokazuje Minimax, cięcia i pomiary. Następnie zamieńcie się pytaniami, żeby oboje umieli wyjaśnić główne części programu.</li>
+<li>Przećwiczcie odpowiedzi z listy poniżej. Przy każdej odpowiedzi wskażcie fragment swojego kodu.</li>
+<li>Spakujcie źródła, instrukcję kompilacji, sprawozdanie, raporty INI i prezentację, jeśli jest wymagana. Uruchomcie kod z rozpakowanej kopii. Oddajcie materiały do Classroom w terminie wskazanym przez prowadzącego.</li>
+</ol>
+<details><summary>Pytania do przećwiczenia</summary>
+<ul>
+<li>Co jest węzłem drzewa, a co jego krawędzią? Węzłem jest stan <code>Board</code>, krawędzią jeden legalny ruch.</li>
+<li>Dlaczego funkcja wywołuje samą siebie? Każdy ruch prowadzi do mniejszego podproblemu, z głębokością zmniejszoną o jeden.</li>
+<li>Kiedy kończy się rekurencja? Po wygranej, remisie, osiągnięciu głębokości albo limitu czasu. Ostatni przypadek jest oznaczony jako nieukończony.</li>
+<li>Dlaczego kopiujemy planszę? Żeby sprawdzenie jednego wariantu nie zmieniało stanu rzeczywistej gry ani innych gałęzi.</li>
+<li>Po co <code>unique_ptr</code> i wirtualny destruktor? Gracz może posiadać obiekt jednej z różnych strategii, usuwany automatycznie przez wspólny typ.</li>
+<li>Czym pusty <code>optional</code> różni się od wartości 0? Pusty oznacza brak wyniku, a 0 jest konkretną zapisaną wartością, tutaj remisem.</li>
+<li>Czy Alpha-Beta daje inną strategię? Pomija zbędne gałęzie Minimaxu przy tej samej głębokości i ocenie. Trzecią metodą w projekcie jest Monte Carlo.</li>
+<li>Co znaczy granica podejścia siłowego? W tym badaniu jest to osiągnięcie ustalonego progu czasu na określonych pozycjach i komputerze. Nie jest uniwersalną granicą całej gry.</li>
+</ul>
+</details>
+<p class="checkpoint">Gotowe, gdy oboje uruchamiacie program z oddawanej paczki i umiecie prześledzić jeden ruch od menu przez <code>Game</code> i strategię do <code>Board::play</code>.</p>
+</section>
+
+<section id="architektura">
+<h2>Jak wygląda gotowy projekt</h2>
+<pre class="tree">src/
+├── Board.hpp         klasa Board i dostępne operacje
+├── Board.cpp         tworzenie planszy, ruchy i wynik
+├── Strategy.hpp      SearchStats, Strategy i trzy klasy AI
+├── Strategy.cpp      heurystyka, trzy AI, tworzenie i pomiar
+├── Game.hpp          klasa Game, readInt i waitForEnter
+├── Game.cpp          wejście, wyświetlanie i pętla partii
+├── Experiments.hpp   deklaracje runBenchmarks i runDuels
+├── Experiments.cpp   otwarcia, pomiary, turniej i raporty INI
+├── main.cpp          menu i wybór graczy
+└── tests.cpp         oddzielny program sprawdzający</pre>
+<pre class="tree">main
+ ├── Game ── posiada Board i dwa unique_ptr&lt;Strategy&gt;
+ │    ├── człowiek ── readInt ── Board::play
+ │    └── AI ── measure ── Strategy::choose ── kopie Board
+ └── Experiments ── te same Board i strategie ── raporty INI
+
+Strategy
+ ├── GreedyStrategy
+ ├── MinimaxStrategy ── flaga włącza cięcia Alpha-Beta
+ └── MonteCarloStrategy
+
+Board ── pola + gracz na ruchu + optional z wynikiem</pre>
+<p>Przykład przepływu to wybór „człowiek kontra Alpha-Beta”. <code>main</code> przekazuje do <code>Game</code> pusty wskaźnik pierwszego gracza i obiekt <code>MinimaxStrategy</code> drugiego. <code>Game</code> pobiera kolumnę od człowieka albo strategii, a reguły zmiany stanu zawsze wykonuje <code>Board::play</code>. Badania używają tych samych klas, więc nie mają drugiej wersji zasad.</p>
+<p>Nie dodajemy <code>shared_ptr</code>, bo obiekt strategii ma jednego właściciela. Nie dodajemy <code>variant</code>, bo brak ruchu i brak wyniku pasują do <code>optional</code>. Drzewo istnieje jako kolejne wywołania funkcji, więc nie potrzebuje klasy węzła ani wskaźników do dzieci.</p>
+</section>
+
+<footer><p>Weryfikacja referencji obejmuje kompilację C++17, reguły, trzy AI, tryby konsolowe, raporty INI i odtwarzanie turnieju. Sprawdzono pozostawienie wyniku na ekranie, powrót do menu i jeden Enter na każdy ruch AI kontra AI. Dodatkowe niezależne sprawdzenie objęło 100 końcówek na planszy 4 × 4. Nie wykonano pełnego badania granicy czasu na Waszym stanowisku. Następny krok dla pary to utworzenie plików z zadania 2 i wspólne prześledzenie jednego ruchu.</p></footer>
+</main><script>
+document.querySelectorAll('[data-copy]').forEach(function(button){
+ button.addEventListener('click',async function(){
+  const text=document.getElementById(button.dataset.copy).textContent;
+  const status=button.nextElementSibling;
+  try{
+   if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);}
+   else{
+    const field=document.createElement('textarea');field.value=text;
+    field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();
+    const copied=document.execCommand('copy');field.remove();if(!copied)throw new Error('copy');
+   }
+   status.textContent='Skopiowano kod bez numerów linii.';
+  }catch(error){status.textContent='Zaznacz i skopiuj kod ręcznie. Numery są poza treścią kodu.';}
+ });
+});
+</script></body></html>
